@@ -1,8 +1,3 @@
-package IRI 0.001 {
-	use Moose;
-	use v5.16;
-	use warnings;
-
 =encoding utf8
 	
 =head1 NAME
@@ -51,9 +46,21 @@ Returns the respective component of the parsed IRI.
 
 =cut
 
+package IRI 0.001 {
+	use Moose;
+	use v5.16;
+	use warnings;
+
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
 	has 'base' => (is => 'ro', isa => 'IRI');
 	has 'components' => (is => 'ro', writer => '_set_components');
+	has 'resolved_components' => (
+		is		=> 'ro',
+		isa		=> 'HashRef',
+		lazy	=> 1,
+		builder	=> '_resolved_components',
+		traits	=> ['Hash'],
+	);
 	
 	sub BUILD {
 		my $self	= shift;
@@ -165,44 +172,37 @@ Returns the respective component of the parsed IRI.
 	
 	sub scheme {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{scheme};
+		return $self->resolved_components->{scheme};
 	}
 	
 	sub host {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{host};
+		return $self->resolved_components->{host};
 	}
 	
 	sub port {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{port};
+		return $self->resolved_components->{port};
 	}
 	
 	sub user {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{user};
+		return $self->resolved_components->{user};
 	}
 	
 	sub path {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{path};
+		return $self->resolved_components->{path};
 	}
 	
 	sub fragment {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{fragment};
+		return $self->resolved_components->{fragment};
 	}
 	
 	sub query {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		return $c{query};
+		return $self->resolved_components->{query};
 	}
 	
 	sub _merge {
@@ -331,52 +331,51 @@ Returns the respective component of the parsed IRI.
 				$target{fragment}	= $components{fragment};
 			}
 			
-			return %target;
+			return \%target;
 		}
-		return %{ $self->components };
+		return $self->components;
 	}
 	
 	sub abs {
 		my $self	= shift;
-		my %c		= $self->_resolved_components();
-		my $value	= $self->_string_from_components(%c);
+		my $value	= $self->_string_from_components( $self->resolved_components );
 		return $value;
 	}
 
 	sub _string_from_components {
 		my $self		= shift;
-		my %components	= @_;
+		my $components	= shift;
 		my $iri			= "";
-		if (my $s = $components{scheme}) {
+		if (my $s = $components->{scheme}) {
 			$iri	.= "${s}:";
 		}
 		
-		if ($components{user} or $components{port} or $components{host}) {
+		if ($components->{user} or $components->{port} or $components->{host}) {
 			# has authority
 			$iri .= "//";
-			if (my $u = $components{user}) {
+			if (my $u = $components->{user}) {
 				$iri	.= "${u}@";
 			}
-			if (my $h = $components{host}) {
+			if (my $h = $components->{host}) {
 				$iri	.= $h;
 			}
-			if (my $p = $components{port}) {
+			if (my $p = $components->{port}) {
 				$iri	.= ":$p";
 			}
 		}
 		
-		if (my $p = $components{path}) {
+		if (my $p = $components->{path}) {
 			$iri	.= $p;
 		} else {
 			warn "Cannot initialize an IRI with no path component.";
 			return;
 		}
 		
-		if (my $q = $components{query}) {
+		if (my $q = $components->{query}) {
 			$iri	.= "?$q";
 		}
 		
-		if (my $f = $components{fragment}) {
+		if (my $f = $components->{fragment}) {
 			$iri	.= "#$f";
 		}
 		
