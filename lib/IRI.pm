@@ -54,12 +54,22 @@ package IRI 0.001 {
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
 	has 'base' => (is => 'ro', isa => 'IRI');
 	has 'components' => (is => 'ro', writer => '_set_components');
+	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
 		is		=> 'ro',
 		isa		=> 'HashRef',
 		lazy	=> 1,
 		builder	=> '_resolved_components',
 		traits	=> ['Hash'],
+		handles	=> {
+			scheme =>  [ accessor => 'scheme' ],
+			host =>  [ accessor => 'host' ],
+			port =>  [ accessor => 'port' ],
+			user =>  [ accessor => 'user' ],
+			path =>  [ accessor => 'path' ],
+			fragment =>  [ accessor => 'fragment' ],
+			query =>  [ accessor => 'query' ],
+		},
 	);
 	
 	sub BUILD {
@@ -168,41 +178,6 @@ package IRI 0.001 {
 		
 		$c->{path}	//= '';
 		$self->_set_components($c);
-	}
-	
-	sub scheme {
-		my $self	= shift;
-		return $self->resolved_components->{scheme};
-	}
-	
-	sub host {
-		my $self	= shift;
-		return $self->resolved_components->{host};
-	}
-	
-	sub port {
-		my $self	= shift;
-		return $self->resolved_components->{port};
-	}
-	
-	sub user {
-		my $self	= shift;
-		return $self->resolved_components->{user};
-	}
-	
-	sub path {
-		my $self	= shift;
-		return $self->resolved_components->{path};
-	}
-	
-	sub fragment {
-		my $self	= shift;
-		return $self->resolved_components->{fragment};
-	}
-	
-	sub query {
-		my $self	= shift;
-		return $self->resolved_components->{query};
 	}
 	
 	sub _merge {
@@ -336,7 +311,7 @@ package IRI 0.001 {
 		return $self->components;
 	}
 	
-	sub abs {
+	sub _abs {
 		my $self	= shift;
 		my $value	= $self->_string_from_components( $self->resolved_components );
 		return $value;
