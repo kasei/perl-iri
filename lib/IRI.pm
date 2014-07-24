@@ -52,7 +52,7 @@ package IRI 0.001 {
 	use warnings;
 
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
-	has 'base' => (is => 'ro', isa => 'IRI');
+	has 'base' => (is => 'ro', isa => 'IRI', predicate => 'has_base');
 	has 'components' => (is => 'ro', writer => '_set_components');
 	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
@@ -244,11 +244,11 @@ package IRI 0.001 {
 	sub _resolved_components {
 		my $self	= shift;
 		my $value	= $self->value;
-		my $base	= $self->base;
-		if ($base and not($self->components->{scheme})) {
+		if ($self->has_base and not($self->components->{scheme})) {
 			# Resolve IRI relative to the base IRI
-			my $v	= $self->value;
-			my $bv	= $base->value;
+			my $base	= $self->base;
+			my $v		= $self->value;
+			my $bv		= $base->value;
 # 			warn "resolving IRI <$v> relative to the base IRI <$bv>";
 			my %components	= %{ $self->components };
 			my %base		= %{ $base->components };
