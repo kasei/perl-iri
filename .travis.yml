@@ -1,0 +1,7 @@
+language: perl
+
+install:
+  - "cpanm --quiet Moose"
+  - "cpanm --quiet --notest Module::Install::AuthorTests"
+script:
+  - "perl Makefile.PL && make test"
