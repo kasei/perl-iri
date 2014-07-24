@@ -211,7 +211,8 @@ Returns the respective component of the parsed IRI.
 		
 		my $bc		= $base->components;
 		my $c		= $self->components;
-		if ($bc->{authority} and not($bc->{path})) {
+		my $base_has_authority	= ($bc->{user} or $bc->{port} or $bc->{host});
+		if ($base_has_authority and not($bc->{path})) {
 			return "/" . $c->{path};
 		} else {
 			my $bp	= $bc->{path};
