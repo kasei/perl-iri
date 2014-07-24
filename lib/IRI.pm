@@ -165,37 +165,44 @@ Returns the respective component of the parsed IRI.
 	
 	sub scheme {
 		my $self	= shift;
-		return $self->components->{scheme};
+		my %c		= $self->_resolved_components();
+		return $c{scheme};
 	}
 	
 	sub host {
 		my $self	= shift;
-		return $self->components->{host};
+		my %c		= $self->_resolved_components();
+		return $c{host};
 	}
 	
 	sub port {
 		my $self	= shift;
-		return $self->components->{port};
+		my %c		= $self->_resolved_components();
+		return $c{port};
 	}
 	
 	sub user {
 		my $self	= shift;
-		return $self->components->{user};
+		my %c		= $self->_resolved_components();
+		return $c{user};
 	}
 	
 	sub path {
 		my $self	= shift;
-		return $self->components->{path};
+		my %c		= $self->_resolved_components();
+		return $c{path};
 	}
 	
 	sub fragment {
 		my $self	= shift;
-		return $self->components->{fragment};
+		my %c		= $self->_resolved_components();
+		return $c{fragment};
 	}
 	
 	sub query {
 		my $self	= shift;
-		return $self->components->{query};
+		my %c		= $self->_resolved_components();
+		return $c{query};
 	}
 	
 	sub _merge {
@@ -258,11 +265,10 @@ Returns the respective component of the parsed IRI.
 		return $newPath;
 	}
 
-	sub abs {
+	sub _resolved_components {
 		my $self	= shift;
 		my $value	= $self->value;
 		my $base	= $self->base;
-		use Data::Dumper;
 		if ($base and not($self->components->{scheme})) {
 			# Resolve IRI relative to the base IRI
 			my $v	= $self->value;
@@ -324,8 +330,15 @@ Returns the respective component of the parsed IRI.
 				$target{fragment}	= $components{fragment};
 			}
 			
-			$value	= $self->_string_from_components(%target);
+			return %target;
 		}
+		return %{ $self->components };
+	}
+	
+	sub abs {
+		my $self	= shift;
+		my %c		= $self->_resolved_components();
+		my $value	= $self->_string_from_components(%c);
 		return $value;
 	}
 

@@ -1,6 +1,16 @@
 The IRI module is a Perl implementation of Internationalized Resource
 Identifiers (IRIs) as defined by [RFC 3987](http://www.ietf.org/rfc/rfc3987.txt).
 
+SYNOPSIS
+
+   use IRI;
+   
+   my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
+   my $i	= IRI->new(value => '#frag', base => $base);
+   say $i->scheme; # 'http'
+   say $i->path; # '/'
+   say $i->abs; # 'http://www.hestebedgård.dk/#frag'
+
 INSTALLATION
 
    This package requires Moose.

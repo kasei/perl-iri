@@ -58,6 +58,13 @@ use_ok( 'IRI' );
 	my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
 	my $i	= IRI->new(value => '#frag', base => $base);
 	is($i->abs, 'http://www.hestebedgård.dk/#frag', 'absolute unicode IRI string');
+	is($i->scheme, 'http', 'absolute unicode IRI scheme');
+	is($i->host, 'www.hestebedgård.dk', 'absolute unicode IRI host');
+	is($i->port, undef, 'absolute unicode IRI port');
+	is($i->user, undef, 'absolute unicode IRI user');
+	is($i->path, '/', 'absolute unicode IRI path');
+	is($i->fragment, 'frag', 'absolute unicode IRI fragment');
+	is($i->query, undef, 'absolute unicode IRI query');
 }
 
 done_testing();
