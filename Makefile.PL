@@ -4,6 +4,7 @@ use warnings;
 use inc::Module::Install;
 
 name				'IRI';
+version				'0.000_01';
 all_from			'lib/IRI.pm';
 author				'Gregory Todd Williams <gwilliams@cpan.org>';
 license				'perl';
@@ -21,6 +22,9 @@ resources(
 );
 
 author_tests('xt');
+
+write_doap_changes;
+write_doap_changes_xml;
 
 sign;
 
