@@ -1,6 +1,7 @@
 package IRI 0.001 {
 	use Moose;
 	use v5.16;
+	use warnings;
 
 =encoding utf8
 	
