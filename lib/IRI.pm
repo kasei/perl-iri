@@ -56,7 +56,7 @@ Returns the respective component of the parsed IRI.
 	
 	sub BUILD {
 		my $self	= shift;
-		my $comp	= $self->parse_components($self->value);
+		my $comp	= $self->_parse_components($self->value);
 	}
 	
 	# These regexes are (mostly) from the syntax grammar in RFC 3987
@@ -147,7 +147,7 @@ Returns the respective component of the parsed IRI.
 	my $absoluteIRI		= qr<${scheme}:${ihierpart}([?]${iquery})?>;
 	my $IRI				= qr<${scheme}:${ihierpart}([?]${iquery})?(#${ifragment})?>;
 	my $IRIreference	= qr<${IRI}|${irelativeref}>;
-	sub parse_components {
+	sub _parse_components {
 		my $self	= shift;
 		my $v		= shift;
 		my $c;
@@ -197,7 +197,7 @@ Returns the respective component of the parsed IRI.
 		return $self->components->{query};
 	}
 	
-	sub merge {
+	sub _merge {
 		my $self	= shift;
 		my $base	= shift;
 		
@@ -214,7 +214,7 @@ Returns the respective component of the parsed IRI.
 		}
 	}
 
-	sub removeDotSegments {
+	sub _remove_dot_segments {
 		my $self	= shift;
 		my $input	= shift;
 		my @output;
@@ -297,10 +297,10 @@ Returns the respective component of the parsed IRI.
 					} else {
 						if ($components{path} =~ m<^/>) {
 							my $path		= $components{path};
-							$target{path}	= $self->removeDotSegments($path);
+							$target{path}	= $self->_remove_dot_segments($path);
 						} else {
-							my $path		= $self->merge($base);
-							$target{path}	= $self->removeDotSegments($path);
+							my $path		= $self->_merge($base);
+							$target{path}	= $self->_remove_dot_segments($path);
 						}
 						if ($components{query}) {
 							$target{query}	= $components{query};
@@ -323,12 +323,12 @@ Returns the respective component of the parsed IRI.
 				$target{fragment}	= $components{fragment};
 			}
 			
-			$value	= $self->string_from_components(%target);
+			$value	= $self->_string_from_components(%target);
 		}
 		return $value;
 	}
 
-	sub string_from_components {
+	sub _string_from_components {
 		my $self		= shift;
 		my %components	= @_;
 		my $iri			= "";
