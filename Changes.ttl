@@ -10,7 +10,7 @@
 
 <>
 	dc:title				"Changes" ;
-	dc:description          "Changes for IRI" ;
+	dc:description			"Changes for IRI" ;
 	dc:subject				my:project ;
 	.
 
@@ -19,12 +19,12 @@
 	dcterms:isVersionOf my:project ;
 	
 	doap:Version [
-		doap:revision     "0.001" ;
-		doap:created      "2014-XX-XX" ;
+		doap:revision	"0.001" ;
+		doap:created	"2014-XX-XX" ;
 	] ;
 	asc:changes [
 		asc:addition	"First release." ;
-#		asc:update      "" ;
+#		asc:update		"" ;
 	] ;
 	.
 
@@ -46,10 +46,10 @@ my:project
 	.
 
 <http://kasei.us/about/foaf.xrdf#greg>
-	a               foaf:Person ;
-	foaf:name       "Gregory Todd Williams" ;
-	foaf:homepage   <http://kasei.us/> ;
-	foaf:page       <http://search.cpan.org/~gwilliams/> ;
-	foaf:mbox       <mailto:gwilliams@cpan.org> ;
-	<http://www.w3.org/2002/07/owl#sameAs> <http://purl.org/NET/cpan-uri/person/gwilliams> ;
+	a				foaf:Person ;
+	foaf:name		"Gregory Todd Williams" ;
+	foaf:homepage	<http://kasei.us/> ;
+	foaf:page		<http://search.cpan.org/~gwilliams/> ;
+	foaf:mbox		<mailto:gwilliams@cpan.org> ;
+	<http://www.w3.org/2002/07/owl#sameAs>	<http://purl.org/NET/cpan-uri/person/gwilliams> ;
 	.
