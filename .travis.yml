@@ -3,5 +3,7 @@ language: perl
 install:
   - "cpanm --quiet Moose"
   - "cpanm --quiet --notest Module::Install::AuthorTests"
+  - "cpanm --quiet --notest Module::Install::DOAP"
+  - "cpanm --quiet --notest Module::Install::DOAPChangeSets"
 script:
   - "perl Makefile.PL && make test"
