@@ -1,7 +1,55 @@
-package IRI {
+package IRI 0.001 {
 	use Moose;
 	use v5.16;
+
+=encoding utf8
 	
+=head1 NAME
+
+IRI - Perl implementation of Internationalized Resource Identifiers (IRIs)
+
+=head1 VERSION
+
+This document describes IRI version 0.001
+
+=head1 SYNOPSIS
+
+  use IRI;
+  
+  my $i	= IRI->new(value => 'https://example.org:80/index#frag');
+  say $i->scheme; # 'https'
+  say $i->path; # '/index'
+
+  my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
+  my $i	= IRI->new(value => '#frag', base => $base);
+  say $i->abs; # 'http://www.hestebedgård.dk/#frag'
+
+=head1 METHODS
+
+=over 4
+
+=item C<< abs >>
+
+Returns the absolute IRI string (resolved against the base IRI if present).
+
+=item C<< scheme >>
+
+=item C<< host >>
+
+=item C<< port >>
+
+=item C<< user >>
+
+=item C<< path >>
+
+=item C<< fragment >>
+
+=item C<< query >>
+
+Returns the respective component of the parsed IRI.
+
+=cut
+
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
 	has 'base' => (is => 'ro', isa => 'IRI');
 	has 'components' => (is => 'ro', writer => '_set_components');
@@ -11,6 +59,7 @@ package IRI {
 		my $comp	= $self->parse_components($self->value);
 	}
 	
+	# These regexes are (mostly) from the syntax grammar in RFC 3987
 	my $HEXDIG			= qr<[0-9A-F]>;
 	my $ALPHA			= qr<[A-Za-z]>;
 	my $subdelims		= qr<[!\$&'()*+,;=]>x;
@@ -217,7 +266,7 @@ package IRI {
 			# Resolve IRI relative to the base IRI
 			my $v	= $self->value;
 			my $bv	= $base->value;
-			warn "resolving IRI <$v> relative to the base IRI <$bv>";
+# 			warn "resolving IRI <$v> relative to the base IRI <$bv>";
 			my %components	= %{ $self->components };
 			my %base		= %{ $base->components };
 			my %target;
@@ -324,143 +373,20 @@ package IRI {
 
 __END__
 
+=back
 
+=head1 SEE ALSO
 
+L<http://www.ietf.org/rfc/rfc3987.txt>
 
-__END__
+=head1 AUTHOR
 
-- (IRI*) initWithComponents: (NSDictionary*) components {
-	if (self = [self init]) {
-		NSMutableString* iri = [NSMutableString string];
-		if (components[@"scheme"]) {
-			[iri appendString:components[@"scheme"]];
-			[iri appendString:@":"];
-		}
-		
-		if (components[@"authority"]) {
-			[iri appendString:@"//"];
-			NSDictionary* auth	= components[@"authority"];
-			//	[ iuserinfo "@" ] ihost [ ":" port ]
-			NSMutableString* authority = [NSMutableString string];
-			if (auth[@"user"]) {
-				[authority appendString:auth[@"user"]];
-				[authority appendString:@"@"];
-			}
-			[authority appendString:auth[@"host"]];
-			if (auth[@"port"]) {
-				[authority appendString:@":"];
-				[authority appendString:auth[@"port"]];
-			}
-			[iri appendString:authority];
-		}
-		
-		if (!components[@"path"]) {
-			NSLog(@"Cannot initialize an IRI with no path component.");
-			return nil;
-		}
-		[iri appendString:components[@"path"]];
-		
-		if (components[@"query"]) {
-			[iri appendString:@"?"];
-			[iri appendString:components[@"query"]];
-		}
+Gregory Todd Williams  C<< <gwilliams@cpan.org> >>
 
-		if (components[@"fragment"]) {
-			[iri appendString:@"#"];
-			[iri appendString:components[@"fragment"]];
-		}
-		
-		_components = components;
-		_iriString	= iri;
-		_baseIRI	= nil;
-	}
-	return self;
-}
+=head1 COPYRIGHT
 
+Copyright (c) 2014 Gregory Todd Williams. This
+program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
 
-
-
-- (NSString *)absoluteString {
-	if (_baseIRI && !_components[@"scheme"]) {
-		// Resolve IRI relative to the base IRI
-//		  NSLog(@"resolving IRI <%@> relative to the base IRI <%@>", _iriString, [_baseIRI absoluteString]);
-		NSDictionary* components	= _components;
-		NSDictionary* base			= [_baseIRI components];
-//		  NSLog(@"base components: %@", base);
-//		  NSLog(@"rel components: %@", components);
-		NSMutableDictionary* target = [NSMutableDictionary dictionary];
-		
-		if (components[@"scheme"]) {
-//			  NSLog(@"have scheme");
-			target[@"scheme"]		= components[@"scheme"];
-			target[@"authority"]	= components[@"authority"];
-			target[@"path"]			= components[@"path"];	// TODO: should be remove_dots(components[@"path"])
-			target[@"query"]		= components[@"query"];
-		} else {
-//			  NSLog(@"no scheme");
-			if (components[@"authority"]) {
-//				  NSLog(@"have authority");
-				target[@"authority"]	= components[@"authority"];
-				target[@"path"]			= components[@"path"];	// TODO: should be remove_dots(components[@"path"])
-				target[@"query"]		= components[@"query"];
-			} else {
-//				  NSLog(@"no authority");
-				if ([components[@"path"] isEqualToString:@""]) {
-//					  NSLog(@"have path");
-					target[@"path"] = base[@"path"];
-					if (components[@"query"]) {
-//						  NSLog(@"have query");
-						target[@"query"]		= components[@"query"];
-					} else {
-//						  NSLog(@"no query");
-						if (base[@"query"]) {
-//							  NSLog(@"setting query from base");
-							target[@"query"]		= base[@"query"];
-						}
-					}
-				} else {
-//					  NSLog(@"no path");
-					if ([components[@"path"] hasPrefix:@"/"]) {
-//						  NSLog(@"path has prefix /");
-						target[@"path"]			= components[@"path"];	// TODO: should be remove_dots(components[@"path"])
-					} else {
-//						  NSLog(@"path without prefix /");
-						target[@"path"] = [IRI pathByMergingBase:base withComponents:components];
-						target[@"path"] = [IRI pathByRemovingDotSegmentsFromPath: target[@"path"]];
-					}
-					if (components[@"query"]) {
-//						  NSLog(@"setting query from resource");
-						target[@"query"]		= components[@"query"];
-					}
-				}
-				if (base[@"authority"]) {
-//					  NSLog(@"setting authority from base");
-					target[@"authority"]		= base[@"authority"];
-				}
-			}
-			if (base[@"scheme"]) {
-//				  NSLog(@"setting scheme from base");
-				target[@"scheme"]	= base[@"scheme"];
-			}
-		}
-		if (components[@"fragment"]) {
-//			  NSLog(@"setting fragment from resource");
-			target[@"fragment"] = components[@"fragment"];
-		}
-		
-		// TODO: re-combine the target components
-		
-//		  NSLog(@"target components: %@", target);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-		[self initWithComponents:target];
-#pragma clang diagnostic pop
-	}
-//	  NSLog(@"====> %@", _iriString);
-	return _iriString;
-}
-
-
-#pragma mark -
-
-
+=cut

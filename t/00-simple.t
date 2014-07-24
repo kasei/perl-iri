@@ -44,14 +44,20 @@ use_ok( 'IRI' );
 	my $b	= IRI->new(value => 'http://example.org/foo/bar');
 	my $i	= IRI->new(value => 'baz/quux', base => $b);
 	isa_ok($i, 'IRI');
-	is($i->abs, 'http://example.org/foo/baz/quux');
+	is($i->abs, 'http://example.org/foo/baz/quux', 'asbolute IRI string');
 }
 
 {
 	my $b	= IRI->new(value => 'http://example.org/foo/bar');
 	my $i	= IRI->new(value => '/baz/../quux', base => $b);
 	isa_ok($i, 'IRI');
-	is($i->abs, 'http://example.org/quux');
+	is($i->abs, 'http://example.org/quux', 'absolute IRI string (removing dots)');
+}
+
+{
+	my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
+	my $i	= IRI->new(value => '#frag', base => $base);
+	is($i->abs, 'http://www.hestebedgård.dk/#frag', 'absolute unicode IRI string');
 }
 
 done_testing();
