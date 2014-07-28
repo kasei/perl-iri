@@ -40,4 +40,17 @@ use_ok( 'IRI' );
 	is($i->abs, 'http://example.org/ns/foo/');
 }
 
+{
+	my $i		= IRI->new( value => 'file:///Users/eve/data/bob.rdf' );
+	isa_ok($i, 'IRI');
+	is($i->abs, 'file:///Users/eve/data/bob.rdf');
+}
+
+{
+	my $base	= IRI->new( value => 'file:///Users/eve/data/bob.rdf' );
+	my $i		= IRI->new( value => '', base => $base );
+	isa_ok($i, 'IRI');
+	is($i->abs, 'file:///Users/eve/data/bob.rdf');
+}
+
 done_testing();

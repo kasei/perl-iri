@@ -206,7 +206,7 @@ package IRI 0.001 {
 		
 		my $bc		= $base->components;
 		my $c		= $self->components;
-		my $base_has_authority	= ($bc->{user} or $bc->{port} or $bc->{host});
+		my $base_has_authority	= ($bc->{user} or $bc->{port} or defined($bc->{host}));
 		if ($base_has_authority and not($bc->{path})) {
 			return "/" . $c->{path};
 		} else {
@@ -283,7 +283,7 @@ package IRI 0.001 {
 					}
 				}
 			} else {
-				if ($components{user} or $components{port} or $components{host}) {
+				if ($components{user} or $components{port} or defined($components{host})) {
 					foreach my $k (qw(scheme user port host path query)) {
 						if (exists $components{$k}) {
 							$target{$k} = $components{$k};
@@ -311,7 +311,7 @@ package IRI 0.001 {
 							$target{query}	= $components{query};
 						}
 					}
-					if ($base{user} or $base{port} or $base{host}) {
+					if ($base{user} or $base{port} or defined($base{host})) {
 						foreach my $k (qw(user port host)) {
 							if (exists $base{$k}) {
 								$target{$k} = $base{$k};
@@ -347,14 +347,14 @@ package IRI 0.001 {
 			$iri	.= "${s}:";
 		}
 		
-		if ($components->{user} or $components->{port} or $components->{host}) {
+		if ($components->{user} or $components->{port} or defined($components->{host})) {
 			# has authority
 			$iri .= "//";
 			if (my $u = $components->{user}) {
 				$iri	.= "${u}@";
 			}
-			if (my $h = $components->{host}) {
-				$iri	.= $h;
+			if (defined(my $h = $components->{host})) {
+				$iri	.= $h // '';
 			}
 			if (my $p = $components->{port}) {
 				$iri	.= ":$p";
