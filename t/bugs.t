@@ -9,29 +9,29 @@ use utf8;
 
 use_ok( 'IRI' );
 
-# {
-# 	my $i;
-# 	try {
-# 		$i	= IRI->new(value => 'http://www.xn--orfolkedansere-rqb.dk/#8835/St%C3%A6vne%202013');
-# 	} catch {
-# 		diag $_;
-# 	};
-# 	isa_ok($i, 'IRI');
-# }
-# 
-# {
-# 	my $base	= IRI->new( value => 'http://a.example/' );
-# 	my $i		= IRI->new( value => 's', base => $base );
-# 	isa_ok($i, 'IRI');
-# 	is($i->abs, 'http://a.example/s');
-# }
-# 
-# {
-# 	my $base	= IRI->new( value => 'http://a.example/' );
-# 	my $i		= IRI->new( value => '#', base => $base );
-# 	isa_ok($i, 'IRI');
-# 	is($i->abs, 'http://a.example/#');
-# }
+{
+	my $i;
+	try {
+		$i	= IRI->new(value => 'http://www.xn--orfolkedansere-rqb.dk/#8835/St%C3%A6vne%202013');
+	} catch {
+		diag $_;
+	};
+	isa_ok($i, 'IRI');
+}
+
+{
+	my $base	= IRI->new( value => 'http://a.example/' );
+	my $i		= IRI->new( value => 's', base => $base );
+	isa_ok($i, 'IRI');
+	is($i->abs, 'http://a.example/s');
+}
+
+{
+	my $base	= IRI->new( value => 'http://a.example/' );
+	my $i		= IRI->new( value => '#', base => $base );
+	isa_ok($i, 'IRI');
+	is($i->abs, 'http://a.example/#');
+}
 
 {
 	my $base	= IRI->new( value => 'http://example.org/ns/' );
