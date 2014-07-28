@@ -375,6 +375,8 @@ package IRI 0.001 {
 		
 		return $iri;
 	}
+	
+	__PACKAGE__->meta->make_immutable;
 }
 
 1;
