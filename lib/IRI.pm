@@ -48,7 +48,7 @@ Returns the respective component of the parsed IRI.
 
 package IRI 0.001 {
 	use Moose;
-	use v5.16;
+	use v5.14;
 	use warnings;
 
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
@@ -62,15 +62,32 @@ package IRI 0.001 {
 		builder	=> '_resolved_components',
 		traits	=> ['Hash'],
 		handles	=> {
-			scheme =>  [ accessor => 'scheme' ],
-			host =>  [ accessor => 'host' ],
-			port =>  [ accessor => 'port' ],
-			user =>  [ accessor => 'user' ],
-			path =>  [ accessor => 'path' ],
-			fragment =>  [ accessor => 'fragment' ],
-			query =>  [ accessor => 'query' ],
+			scheme		=>  [ accessor => 'scheme' ],
+			host		=>  [ accessor => 'host' ],
+			port		=>  [ accessor => 'port' ],
+			user		=>  [ accessor => 'user' ],
+			path		=>  [ accessor => 'path' ],
+			fragment	=>  [ accessor => 'fragment' ],
+			query		=>  [ accessor => 'query' ],
 		},
 	);
+
+	around BUILDARGS => sub {
+		my $orig 	= shift;
+		my $class	= shift;
+		if (scalar(@_) == 1) {
+			return $class->$orig(value => shift);
+		}
+		
+		my %args	= @_;
+		my $value	= $args{base};
+		if (blessed($value)) {
+			if ($value->isa('URI')) {
+				$args{base}	= IRI->new( value => $value->as_string );
+			}
+		}
+		return $class->$orig(%args);
+	};
 	
 	sub BUILD {
 		my $self	= shift;
@@ -84,7 +101,7 @@ package IRI 0.001 {
 	my $gendelims		= qr<[":/?#@] | \[ | \]>x;
 	my $reserved		= qr<${gendelims} | ${subdelims}>;
 	my $unreserved		= qr<${ALPHA} | [0-9] | [-._~]>x;
-	my $pctencoded		= qr<%[A-Fa-f]{2}>;
+	my $pctencoded		= qr<%[0-9A-Fa-f]{2}>;
 	my $decoctet		= qr<
 							[0-9]			# 0-9
 						|	[1-9][0-9]		# 10-99
@@ -131,7 +148,7 @@ package IRI 0.001 {
 						|	[\x{D0000}-\x{DFFFD}] / [\x{E1000}-\x{EFFFD}]
 						>x;
 	my $iunreserved		= qr<${ALPHA}|[0-9]|[-._~]|${ucschar}>;
-	my $ipchar			= qr<${iunreserved}|${pctencoded}|${subdelims}|:|@>;
+	my $ipchar			= qr<(${iunreserved})|(${pctencoded})|(${subdelims})|:|@>;
 	my $ifragment		= qr<(?<fragment>(${ipchar}|/|[?])*)>;
 	my $iquery			= qr<(?<query>(${ipchar}|${iprivate}|/|[?])*)>;
 	my $isegmentnznc	= qr<(${iunreserved}|${pctencoded}|${subdelims}|@)+ # non-zero-length segment without any colon ":"
@@ -173,7 +190,7 @@ package IRI 0.001 {
 		if ($v =~ /^${IRIreference}$/) {
 			%$c = %+;
 		} else {
-			die "Not a valid IRI?";
+			die "Not a valid IRI? " . Dumper($v);
 		}
 		
 		$c->{path}	//= '';
@@ -191,10 +208,11 @@ package IRI 0.001 {
 			return "/" . $c->{path};
 		} else {
 			my $bp	= $bc->{path};
-			my @pathParts	= split('/', $bp);
+			my @pathParts	= split('/', $bp, -1);	# -1 limit means $path='/' splits into ('', '')
 			pop(@pathParts);
 			push(@pathParts, $c->{path});
-			return join('/', @pathParts);
+			my $path	= join('/', @pathParts);
+			return $path;
 		}
 	}
 
@@ -226,7 +244,8 @@ package IRI 0.001 {
 				if ($leadingSlash) {
 					substr($input, 0, 1)	= '';
 				}
-				my ($part, @parts)	= split('/', $input);
+				my ($part, @parts)	= split('/', $input, -1);
+				$part	//= '';
 				if (scalar(@parts)) {
 					unshift(@parts, '');
 				}
@@ -285,7 +304,7 @@ package IRI 0.001 {
 							my $path		= $self->_merge($base);
 							$target{path}	= $self->_remove_dot_segments($path);
 						}
-						if ($components{query}) {
+						if (defined($components{query})) {
 							$target{query}	= $components{query};
 						}
 					}
@@ -297,12 +316,12 @@ package IRI 0.001 {
 						}
 					}
 				}
-				if ($base{scheme}) {
+				if (defined($base{scheme})) {
 					$target{scheme} = $base{scheme};
 				}
 			}
 			
-			if ($components{fragment}) {
+			if (defined($components{fragment})) {
 				$target{fragment}	= $components{fragment};
 			}
 			
@@ -339,18 +358,15 @@ package IRI 0.001 {
 			}
 		}
 		
-		if (my $p = $components->{path}) {
+		if (defined(my $p = $components->{path})) {
 			$iri	.= $p;
-		} else {
-			warn "Cannot initialize an IRI with no path component.";
-			return;
 		}
 		
-		if (my $q = $components->{query}) {
+		if (defined(my $q = $components->{query})) {
 			$iri	.= "?$q";
 		}
 		
-		if (my $f = $components->{fragment}) {
+		if (defined(my $f = $components->{fragment})) {
 			$iri	.= "#$f";
 		}
 		
