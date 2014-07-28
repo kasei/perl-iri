@@ -55,11 +55,15 @@ Returns the respective component of the parsed IRI.
 
 package IRI 0.001 {
 	use Moose;
+	use Moose::Util::TypeConstraints;
 	use v5.14;
 	use warnings;
+	
+	class_type 'URI';
+	coerce 'IRI' => from 'URI' => via { IRI->new( value => $_->as_string ) };
 
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
-	has 'base' => (is => 'ro', isa => 'IRI', predicate => 'has_base');
+	has 'base' => (is => 'ro', isa => 'IRI', predicate => 'has_base', coerce => 1);
 	has 'components' => (is => 'ro', writer => '_set_components');
 	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
@@ -85,15 +89,7 @@ package IRI 0.001 {
 		if (scalar(@_) == 1) {
 			return $class->$orig(value => shift);
 		}
-		
-		my %args	= @_;
-		my $value	= $args{base};
-		if (blessed($value)) {
-			if ($value->isa('URI')) {
-				$args{base}	= IRI->new( value => $value->as_string );
-			}
-		}
-		return $class->$orig(%args);
+		return $class->$orig(@_);
 	};
 	
 	sub BUILD {

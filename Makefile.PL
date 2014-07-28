@@ -14,6 +14,7 @@ build_requires		'Test::More'				=> 0.88;
 perl_version		'5.014';
 
 requires			'Moose'						=> 2;
+build_requires		'URI'						=> 0;
 
 resources(
 	'homepage'   => "http://search.cpan.org/dist/IRI/",
