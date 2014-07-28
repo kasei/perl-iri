@@ -2,7 +2,7 @@
 	
 =head1 NAME
 
-IRI - Perl implementation of Internationalized Resource Identifiers (IRIs)
+IRI - Internationalized Resource Identifiers
 
 =head1 VERSION
 
@@ -19,6 +19,13 @@ This document describes IRI version 0.001
   my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
   my $i	= IRI->new(value => '#frag', base => $base);
   say $i->abs; # 'http://www.hestebedgård.dk/#frag'
+
+=head1 DESCRIPTION
+
+The IRI module provides an object representation for Internationalized
+Resource Identifiers (IRIs) as defined by
+L<RFC 3987|http://www.ietf.org/rfc/rfc3987.txt> and supports their parsing,
+serializing, and base resolution.
 
 =head1 METHODS
 
