@@ -31,6 +31,11 @@ serializing, and base resolution.
 
 =over 4
 
+=item C<< as_string >>
+
+Returns the absolute IRI string resolved against the base IRI, if present;
+the relative IRI string otherwise.
+
 =item C<< abs >>
 
 Returns the absolute IRI string (resolved against the base IRI if present).
@@ -53,7 +58,7 @@ Returns the respective component of the parsed IRI.
 
 =cut
 
-package IRI 0.001 {
+package IRI 0.002 {
 	use Moose;
 	use Moose::Util::TypeConstraints;
 	use v5.14;
@@ -65,6 +70,7 @@ package IRI 0.001 {
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
 	has 'base' => (is => 'ro', isa => 'IRI', predicate => 'has_base', coerce => 1);
 	has 'components' => (is => 'ro', writer => '_set_components');
+	has 'as_string' => (is => 'ro', isa => 'Str', lazy => 1, builder => '_as_string');
 	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
 		is		=> 'ro',
@@ -339,6 +345,15 @@ package IRI 0.001 {
 		return $value;
 	}
 
+	sub _as_string {
+		my $self	= shift;
+		if ($self->has_base) {
+			return $self->abs;
+		} else {
+			return $self->value;
+		}
+	}
+	
 	sub _string_from_components {
 		my $self		= shift;
 		my $components	= shift;

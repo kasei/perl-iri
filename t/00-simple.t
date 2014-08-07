@@ -12,6 +12,7 @@ use_ok( 'IRI' );
 	my $i	= IRI->new();
 	isa_ok($i, 'IRI');
 	isa_ok($i->components, 'HASH');
+	is($i->as_string, '');
 }
 
 {
@@ -19,6 +20,7 @@ use_ok( 'IRI' );
 	isa_ok($i, 'IRI');
 	is($i->value, 'foo', 'IRI value');
 	is($i->path, 'foo', 'relative path');
+	is($i->as_string, 'foo');
 }
 
 {
@@ -31,6 +33,7 @@ use_ok( 'IRI' );
 	is($i->path, '/index', 'path');
 	is($i->fragment, 'frag', 'fragment');
 	is($i->query, 'foo=bar', 'query');
+	is($i->as_string, 'https://greg@example.org:80/index?foo=bar#frag');
 }
 
 {
@@ -44,7 +47,8 @@ use_ok( 'IRI' );
 	my $b	= IRI->new(value => 'http://example.org/foo/bar');
 	my $i	= IRI->new(value => 'baz/quux', base => $b);
 	isa_ok($i, 'IRI');
-	is($i->abs, 'http://example.org/foo/baz/quux', 'asbolute IRI string');
+	is($i->abs, 'http://example.org/foo/baz/quux', 'absolute IRI string');
+	is($i->as_string, $i->abs);
 }
 
 {
@@ -65,6 +69,12 @@ use_ok( 'IRI' );
 	is($i->path, '/', 'absolute unicode IRI path');
 	is($i->fragment, 'frag', 'absolute unicode IRI fragment');
 	is($i->query, undef, 'absolute unicode IRI query');
+}
+
+{
+	my $i	= IRI->new(value => 'baz/quux');
+	isa_ok($i, 'IRI');
+	is($i->as_string, 'baz/quux', 'IRI string on relative IRI');
 }
 
 done_testing();
