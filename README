@@ -9,7 +9,7 @@ SYNOPSIS
    my $i	= IRI->new(value => '#frag', base => $base);
    say $i->scheme; # 'http'
    say $i->path; # '/'
-   say $i->abs; # 'http://www.hestebedgård.dk/#frag'
+   say $i->as_string; # 'http://www.hestebedgård.dk/#frag'
 
 INSTALLATION
 
