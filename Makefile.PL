@@ -4,7 +4,7 @@ use warnings;
 use inc::Module::Install;
 
 name				'IRI';
-version				'0.001';
+version				'0.001_01';
 all_from			'lib/IRI.pm';
 author				'Gregory Todd Williams <gwilliams@cpan.org>';
 license				'perl';
