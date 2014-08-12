@@ -1,0 +1,5 @@
+.travis.yml
+.gitignore
+.git
+MANIFEST.SKIP
+.DS_Store
