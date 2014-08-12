@@ -15,6 +15,20 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.003.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.002.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.003" ;
+		doap:created	"2014-08-11" ;
+	] ;
+	asc:changes [
+		asc:addition	"Added coercion from Str to IRI." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.002.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.001.tar.gz> ;
