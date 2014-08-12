@@ -65,6 +65,7 @@ package IRI 0.002 {
 	use warnings;
 	
 	class_type 'URI';
+	coerce 'IRI' => from 'Str' => via { IRI->new( value => $_ ) };
 	coerce 'IRI' => from 'URI' => via { IRI->new( value => $_->as_string ) };
 
 	has 'value' => (is => 'ro', isa => 'Str', default => '');
