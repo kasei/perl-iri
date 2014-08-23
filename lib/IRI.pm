@@ -105,29 +105,29 @@ package IRI 0.003 {
 	}
 	
 	# These regexes are (mostly) from the syntax grammar in RFC 3987
-	my $HEXDIG			= qr<[0-9A-F]>;
-	my $ALPHA			= qr<[A-Za-z]>;
-	my $subdelims		= qr<[!\$&'()*+,;=]>x;
-	my $gendelims		= qr<[":/?#@] | \[ | \]>x;
-	my $reserved		= qr<${gendelims} | ${subdelims}>;
-	my $unreserved		= qr<${ALPHA} | [0-9] | [-._~]>x;
-	my $pctencoded		= qr<%[0-9A-Fa-f]{2}>;
+	my $HEXDIG			= qr<[0-9A-F]>o;
+	my $ALPHA			= qr<[A-Za-z]>o;
+	my $subdelims		= qr<[!\$&'()*+,;=]>xo;
+	my $gendelims		= qr<[":/?#@] | \[ | \]>xo;
+	my $reserved		= qr<${gendelims} | ${subdelims}>o;
+	my $unreserved		= qr<${ALPHA} | [0-9] | [-._~]>xo;
+	my $pctencoded		= qr<%[0-9A-Fa-f]{2}>o;
 	my $decoctet		= qr<
 							[0-9]			# 0-9
 						|	[1-9][0-9]		# 10-99
 						|	1 [0-9]{2}		# 100-199
 						|	2 [0-4] [0-9]	# 200-249
 						|	25 [0-5]		# 250-255
-						>x;
+						>xo;
 	my $IPv4address		= qr<
 							# IPv4address
 							${decoctet}[.]${decoctet}[.]${decoctet}[.]${decoctet}
-						>x;
-	my $h16				= qr<${HEXDIG}{1,4}>;
+						>xo;
+	my $h16				= qr<${HEXDIG}{1,4}>o;
 	my $ls32			= qr<
 							( ${h16} : ${h16} )
 						|	${IPv4address}
-						>x;
+						>xo;
 	my $IPv6address		= qr<
 							# IPv6address
 							(								 ( ${h16} : ){6} ${ls32})
@@ -139,16 +139,16 @@ package IRI 0.003 {
 						| (( ( ${h16} : ){,4} ${h16} )? ::				 ${ls32})
 						| (( ( ${h16} : ){,5} ${h16} )? ::				 ${h16})
 						| (( ( ${h16} : ){,6} ${h16} )? ::)
-						>x;
-	my $IPvFuture		= qr<v (${HEXDIG})+ [.] ( ${unreserved} | ${subdelims} | : )+>x;
+						>xo;
+	my $IPvFuture		= qr<v (${HEXDIG})+ [.] ( ${unreserved} | ${subdelims} | : )+>xo;
 	my $IPliteral		= qr<\[
 							# IPliteral
 							(${IPv6address} | ${IPvFuture})
 							\]
-						>x;
-	my $port			= qr<(?<port>[0-9]*)>;
-	my $scheme			= qr<(?<scheme>${ALPHA} ( ${ALPHA} | [0-9] | [+] | [-] | [.] )*)>x;
-	my $iprivate		= qr<[\x{E000}-\x{F8FF}] | [\x{F0000}-\x{FFFFD}] | [\x{100000}-\x{10FFFD}]>x;
+						>xo;
+	my $port			= qr<(?<port>[0-9]*)>o;
+	my $scheme			= qr<(?<scheme>${ALPHA} ( ${ALPHA} | [0-9] | [+] | [-] | [.] )*)>xo;
+	my $iprivate		= qr<[\x{E000}-\x{F8FF}] | [\x{F0000}-\x{FFFFD}] | [\x{100000}-\x{10FFFD}]>xo;
 	my $ucschar			= qr<
 							[\x{a0}-\x{d7ff}] | [\x{f900}-\x{fdcf}] | [\x{fdf0}-\x{ffef}]
 						|	[\x{10000}-\x{1FFFD}] / [\x{20000}-\x{2FFFD}] / [\x{30000}-\x{3FFFD}]
@@ -156,42 +156,42 @@ package IRI 0.003 {
 						|	[\x{70000}-\x{7FFFD}] / [\x{80000}-\x{8FFFD}] / [\x{90000}-\x{9FFFD}]
 						|	[\x{A0000}-\x{AFFFD}] / [\x{B0000}-\x{BFFFD}] / [\x{C0000}-\x{CFFFD}]
 						|	[\x{D0000}-\x{DFFFD}] / [\x{E1000}-\x{EFFFD}]
-						>x;
-	my $iunreserved		= qr<${ALPHA}|[0-9]|[-._~]|${ucschar}>;
-	my $ipchar			= qr<(${iunreserved})|(${pctencoded})|(${subdelims})|:|@>;
-	my $ifragment		= qr<(?<fragment>(${ipchar}|/|[?])*)>;
-	my $iquery			= qr<(?<query>(${ipchar}|${iprivate}|/|[?])*)>;
+						>xo;
+	my $iunreserved		= qr<${ALPHA}|[0-9]|[-._~]|${ucschar}>o;
+	my $ipchar			= qr<(${iunreserved})|(${pctencoded})|(${subdelims})|:|@>o;
+	my $ifragment		= qr<(?<fragment>(${ipchar}|/|[?])*)>o;
+	my $iquery			= qr<(?<query>(${ipchar}|${iprivate}|/|[?])*)>o;
 	my $isegmentnznc	= qr<(${iunreserved}|${pctencoded}|${subdelims}|@)+ # non-zero-length segment without any colon ":"
-						>x;
-	my $isegmentnz		= qr<${ipchar}+>;
-	my $isegment		= qr<${ipchar}*>;
-	my $ipathempty		= qr<>;
-	my $ipathrootless	= qr<(?<path>${isegmentnz}(/${isegment})*)>;
-	my $ipathnoscheme	= qr<(?<path>${isegmentnznc}(/${isegment})*)>;
-	my $ipathabsolute	= qr<(?<path>/(${isegmentnz}(/${isegment})*)?)>;
-	my $ipathabempty	= qr<(?<path>(/${isegment})*)>;
+						>xo;
+	my $isegmentnz		= qr<${ipchar}+>o;
+	my $isegment		= qr<${ipchar}*>o;
+	my $ipathempty		= qr<>o;
+	my $ipathrootless	= qr<(?<path>${isegmentnz}(/${isegment})*)>o;
+	my $ipathnoscheme	= qr<(?<path>${isegmentnznc}(/${isegment})*)>o;
+	my $ipathabsolute	= qr<(?<path>/(${isegmentnz}(/${isegment})*)?)>o;
+	my $ipathabempty	= qr<(?<path>(/${isegment})*)>o;
 	my $ipath			= qr<
 							${ipathabempty}		# begins with "/" or is empty
 						|	${ipathabsolute}	# begins with "/" but not "//"
 						|	${ipathnoscheme}	# begins with a non-colon segment
 						|	${ipathrootless}	# begins with a segment
 						|	${ipathempty}		# zero characters
-						>x;
-	my $iregname		= qr<(${iunreserved}|${pctencoded}|${subdelims})*>;
-	my $ihost			= qr<(?<host>${IPliteral}|${IPv4address}|${iregname})>;
-	my $iuserinfo		= qr<(?<user>(${iunreserved}|${pctencoded}|${subdelims}|:)*)>;
-	my $iauthority		= qr<(${iuserinfo}@)?${ihost}(:${port})?>;
+						>xo;
+	my $iregname		= qr<(${iunreserved}|${pctencoded}|${subdelims})*>o;
+	my $ihost			= qr<(?<host>${IPliteral}|${IPv4address}|${iregname})>o;
+	my $iuserinfo		= qr<(?<user>(${iunreserved}|${pctencoded}|${subdelims}|:)*)>o;
+	my $iauthority		= qr<(${iuserinfo}@)?${ihost}(:${port})?>o;
 	my $irelativepart	= qr<
 							(//${iauthority}${ipathabempty})
 						|	${ipathabsolute}
 						|	${ipathnoscheme}
 						|	${ipathempty}
-						>x;
-	my $irelativeref	= qr<${irelativepart}([?]${iquery})?(#${ifragment})?>;
-	my $ihierpart		= qr<(//${iauthority}${ipathabempty})|(${ipathabsolute})|(${ipathrootless})|(${ipathempty})>;
-	my $absoluteIRI		= qr<${scheme}:${ihierpart}([?]${iquery})?>;
-	my $IRI				= qr<${scheme}:${ihierpart}([?]${iquery})?(#${ifragment})?>;
-	my $IRIreference	= qr<${IRI}|${irelativeref}>;
+						>xo;
+	my $irelativeref	= qr<${irelativepart}([?]${iquery})?(#${ifragment})?>o;
+	my $ihierpart		= qr<(//${iauthority}${ipathabempty})|(${ipathabsolute})|(${ipathrootless})|(${ipathempty})>o;
+	my $absoluteIRI		= qr<${scheme}:${ihierpart}([?]${iquery})?>o;
+	my $IRI				= qr<${scheme}:${ihierpart}([?]${iquery})?(#${ifragment})?>o;
+	my $IRIreference	= qr<${IRI}|${irelativeref}>o;
 	sub _parse_components {
 		my $self	= shift;
 		my $v		= shift;
@@ -200,6 +200,7 @@ package IRI 0.003 {
 		if ($v =~ /^${IRIreference}$/) {
 			%$c = %+;
 		} else {
+			use Data::Dumper;
 			die "Not a valid IRI? " . Dumper($v);
 		}
 		
