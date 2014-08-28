@@ -13,7 +13,9 @@ build_requires		'Test::More'				=> 0.88;
 
 perl_version		'5.014';
 
-requires			'Moose'						=> 2;
+requires			'Moo'						=> 2;
+requires			'MooX::HandlesVia'			=> 0;
+requires			'Type::Tiny'				=> 0;
 build_requires		'URI'						=> 0;
 
 resources(

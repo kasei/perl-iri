@@ -59,26 +59,39 @@ Returns the respective component of the parsed IRI.
 =cut
 
 package IRI 0.003 {
-	use Moose;
-	use Moose::Util::TypeConstraints;
+	use Moo;
+	use MooX::HandlesVia;
+	use Types::Standard qw(Str InstanceOf HashRef);
+	use Scalar::Util qw(blessed);
 	use v5.14;
 	use warnings;
 	
-	class_type 'URI';
-	coerce 'IRI' => from 'Str' => via { IRI->new( value => $_ ) };
-	coerce 'IRI' => from 'URI' => via { IRI->new( value => $_->as_string ) };
+# 	class_type 'URI';
+# 	coerce 'IRI' => from 'Str' => via { IRI->new( value => $_ ) };
+# 	coerce 'IRI' => from 'URI' => via { IRI->new( value => $_->as_string ) };
 
-	has 'value' => (is => 'ro', isa => 'Str', default => '');
-	has 'base' => (is => 'ro', isa => 'IRI', predicate => 'has_base', coerce => 1);
+	has 'base' => (is => 'ro', isa => InstanceOf['IRI'], predicate => 'has_base', coerce => sub {
+		my $base	= shift;
+		if (blessed($base)) {
+			if ($base->isa('IRI')) {
+				return $base;
+			} elsif ($base->isa('URI')) {
+				return IRI->new( value => $base->as_string );
+			}
+		} else {
+			return IRI->new($base);
+		}
+	});
+	has 'value' => (is => 'ro', isa => Str, default => '');
 	has 'components' => (is => 'ro', writer => '_set_components');
-	has 'as_string' => (is => 'ro', isa => 'Str', lazy => 1, builder => '_as_string');
+	has 'as_string' => (is => 'ro', isa => Str, lazy => 1, builder => '_as_string');
 	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
 		is		=> 'ro',
-		isa		=> 'HashRef',
+		isa		=> HashRef,
 		lazy	=> 1,
 		builder	=> '_resolved_components',
-		traits	=> ['Hash'],
+		handles_via	=> 'Hash',
 		handles	=> {
 			scheme		=>  [ accessor => 'scheme' ],
 			host		=>  [ accessor => 'host' ],
