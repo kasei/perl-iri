@@ -4,6 +4,8 @@ perl:
 install:
   - "cpanm --quiet Moo"
   - "cpanm --quiet MooX::HandlesVia"
+  - "cpanm --quiet Type::Tiny"
+  - "cpanm --quiet URI"
   - "cpanm --quiet --notest Module::Install::AuthorTests"
   - "cpanm --quiet --notest Module::Install::DOAP"
   - "cpanm --quiet --notest Module::Install::DOAPChangeSets"
