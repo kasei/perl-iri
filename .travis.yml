@@ -2,7 +2,8 @@ language: perl
 perl:
   - "5.16"
 install:
-  - "cpanm --quiet Moose"
+  - "cpanm --quiet Moo"
+  - "cpanm --quiet MooX::HandlesVia"
   - "cpanm --quiet --notest Module::Install::AuthorTests"
   - "cpanm --quiet --notest Module::Install::DOAP"
   - "cpanm --quiet --notest Module::Install::DOAPChangeSets"
