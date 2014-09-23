@@ -58,13 +58,14 @@ Returns the respective component of the parsed IRI.
 
 =cut
 
-package IRI 0.003 {
+package IRI {
+	use v5.14;
+	use warnings;
+	our $VERSION	= 0.003_01;
 	use Moo;
 	use MooX::HandlesVia;
 	use Types::Standard qw(Str InstanceOf HashRef);
 	use Scalar::Util qw(blessed);
-	use v5.14;
-	use warnings;
 	
 # 	class_type 'URI';
 # 	coerce 'IRI' => from 'Str' => via { IRI->new( value => $_ ) };
