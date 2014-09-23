@@ -61,7 +61,7 @@ Returns the respective component of the parsed IRI.
 package IRI {
 	use v5.14;
 	use warnings;
-	our $VERSION	= 0.003_01;
+	our $VERSION	= '0.003_01';
 	use Moo;
 	use MooX::HandlesVia;
 	use Types::Standard qw(Str InstanceOf HashRef);
