@@ -15,6 +15,21 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.004.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.003.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.004" ;
+		doap:created	"2014-XX-XX" ;
+	] ;
+	asc:changes [
+		asc:update		"Moved modules from Moose to Moo." ;
+		asc:update		"Changed IRI to use old-style VERSION declaration." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.003.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.002.tar.gz> ;

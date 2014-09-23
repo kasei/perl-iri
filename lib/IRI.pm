@@ -6,7 +6,7 @@ IRI - Internationalized Resource Identifiers
 
 =head1 VERSION
 
-This document describes IRI version 0.003
+This document describes IRI version 0.003_01
 
 =head1 SYNOPSIS
 
