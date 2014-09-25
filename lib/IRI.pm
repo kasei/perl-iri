@@ -6,7 +6,7 @@ IRI - Internationalized Resource Identifiers
 
 =head1 VERSION
 
-This document describes IRI version 0.003
+This document describes IRI version 0.004
 
 =head1 SYNOPSIS
 
@@ -61,7 +61,7 @@ Returns the respective component of the parsed IRI.
 package IRI {
 	use v5.14;
 	use warnings;
-	our $VERSION	= 0.003_01;
+	our $VERSION	= '0.004';
 	use Moo;
 	use MooX::HandlesVia;
 	use Types::Standard qw(Str InstanceOf HashRef);
@@ -406,8 +406,6 @@ package IRI {
 		
 		return $iri;
 	}
-	
-	__PACKAGE__->meta->make_immutable;
 }
 
 1;
