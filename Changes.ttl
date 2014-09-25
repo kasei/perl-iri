@@ -21,7 +21,7 @@
 	
 	doap:Version [
 		doap:revision	"0.004" ;
-		doap:created	"2014-XX-XX" ;
+		doap:created	"2014-09-25" ;
 	] ;
 	asc:changes [
 		asc:update		"Moved modules from Moose to Moo." ;
