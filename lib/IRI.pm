@@ -1,5 +1,5 @@
 =encoding utf8
-	
+
 =head1 NAME
 
 IRI - Internationalized Resource Identifiers
@@ -12,12 +12,12 @@ This document describes IRI version 0.004
 
   use IRI;
   
-  my $i	= IRI->new(value => 'https://example.org:80/index#frag');
+  my $i = IRI->new(value => 'https://example.org:80/index#frag');
   say $i->scheme; # 'https'
   say $i->path; # '/index'
 
   my $base = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/");
-  my $i	= IRI->new(value => '#frag', base => $base);
+  my $i = IRI->new(value => '#frag', base => $base);
   say $i->abs; # 'http://www.hestebedgård.dk/#frag'
 
 =head1 DESCRIPTION
