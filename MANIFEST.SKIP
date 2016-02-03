@@ -3,3 +3,4 @@
 .git
 MANIFEST.SKIP
 .DS_Store
+cpanfile
