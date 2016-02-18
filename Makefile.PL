@@ -15,7 +15,7 @@ perl_version		'5.014';
 
 requires			'Moo'						=> 0;
 requires			'MooX::HandlesVia'			=> 0;
-requires			'Type::Tiny'				=> 0;
+requires			'Type::Tiny'				=> 0.008; #InstanceOf
 build_requires		'URI'						=> 0;
 
 resources(
