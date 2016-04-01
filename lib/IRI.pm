@@ -211,7 +211,7 @@ package IRI {
 		my $v		= shift;
 		my $c;
 		
-		if ($v =~ /^${IRIreference}$/) {
+		if ($v =~ /^${IRIreference}$/o) {
 			%$c = %+;
 		} else {
 			use Data::Dumper;
