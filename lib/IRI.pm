@@ -125,7 +125,7 @@ package IRI {
 	before [qw(components as_string abs resolved_components)] => sub {
 		my $self	= shift;
 		if (not $self->_initialized) {
-			warn "Lazily initializing IRI";
+# 			warn "Lazily initializing IRI";
 			my $comp	= $self->_parse_components($self->value);
 		}
 	};
