@@ -20,12 +20,30 @@ This document describes IRI version 0.004
   my $i = IRI->new(value => '#frag', base => $base);
   say $i->abs; # 'http://www.hestebedgård.dk/#frag'
 
+  # Defer parsing of the IRI until necessary
+  my $i = IRI->new(value => "http://www.hestebedg\x{e5}rd.dk/", lazy => 1);
+  say $i->path; # path is parsed here
+
 =head1 DESCRIPTION
 
 The IRI module provides an object representation for Internationalized
 Resource Identifiers (IRIs) as defined by
 L<RFC 3987|http://www.ietf.org/rfc/rfc3987.txt> and supports their parsing,
 serializing, and base resolution.
+
+=head1 ATTRIBUTES
+
+=over 4
+
+=item C<< lazy >>
+
+A boolean value indicating whether the IRI should be parsed (and validated)
+during object construction (false), or parsed only when an IRI component is
+accessed (true). If no components are ever needed (e.g. an IRI is constructed
+with a C<< value >> and C<< value >> is the only accessor ever called), no
+parsing will take place.
+
+=back
 
 =head1 METHODS
 
