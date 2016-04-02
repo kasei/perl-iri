@@ -64,13 +64,15 @@ package IRI {
 	our $VERSION	= '0.004';
 	use Moo;
 	use MooX::HandlesVia;
-	use Types::Standard qw(Str InstanceOf HashRef);
+	use Types::Standard qw(Str InstanceOf HashRef Bool);
 	use Scalar::Util qw(blessed);
 	
 # 	class_type 'URI';
 # 	coerce 'IRI' => from 'Str' => via { IRI->new( value => $_ ) };
 # 	coerce 'IRI' => from 'URI' => via { IRI->new( value => $_->as_string ) };
 
+	has 'lazy' => (is => 'ro', isa => Bool, default => 0);
+	has '_initialized' => (is => 'rw', isa => Bool, default => 0, init_arg => undef);
 	has 'base' => (is => 'ro', isa => InstanceOf['IRI'], predicate => 'has_base', coerce => sub {
 		my $base	= shift;
 		if (blessed($base)) {
@@ -115,9 +117,19 @@ package IRI {
 	
 	sub BUILD {
 		my $self	= shift;
-		my $comp	= $self->_parse_components($self->value);
+		unless ($self->lazy) {
+			my $comp	= $self->_parse_components($self->value);
+		}
 	}
 	
+	before [qw(components as_string abs resolved_components)] => sub {
+		my $self	= shift;
+		if (not $self->_initialized) {
+			warn "Lazily initializing IRI";
+			my $comp	= $self->_parse_components($self->value);
+		}
+	};
+
 	# These regexes are (mostly) from the syntax grammar in RFC 3987
 	my $HEXDIG			= qr<[0-9A-F]>o;
 	my $ALPHA			= qr<[A-Za-z]>o;
@@ -220,6 +232,7 @@ package IRI {
 		
 		$c->{path}	//= '';
 		$self->_set_components($c);
+		$self->_initialized(1);
 	}
 	
 	sub _merge {
