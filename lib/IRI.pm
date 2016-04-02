@@ -140,7 +140,7 @@ package IRI {
 		}
 	}
 	
-	before [qw(components as_string abs resolved_components)] => sub {
+	before [qw(components as_string abs resolved_components scheme host port user path fragment query)] => sub {
 		my $self	= shift;
 		if (not $self->_initialized) {
 # 			warn "Lazily initializing IRI";
