@@ -15,6 +15,25 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.005.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.004.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.005" ;
+		doap:created	"2016-04-04" ;
+	] ;
+	asc:changes [
+		asc:addition	"Add ability to lazily parse IRI components." ;
+		asc:addition	"Add cpanfile, with Module::Install deps (#5 from Alberto Simões)." ;
+		asc:addition	"Added Try::Tiny to list of build requirements (github issue #3)." ;
+		asc:update		"Improve performance of IRI component parsing." ;
+		asc:update		"Updated required version of Type::Tiny to 0.008 to support use of InstanceOf (#7 from Alexandr Ciornii)." ;
+		asc:update		"Update POD coverage test to ignore private attributes (#6 from Alberto Simões)." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.004.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.003.tar.gz> ;
