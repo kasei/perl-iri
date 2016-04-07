@@ -466,7 +466,7 @@ Returns a HASH of key-value mappings for the unencoded, parsed query form data.
 		return map { _unencode($_) } map { split(/=/, $_) } @pairs;
 	}
 
-=item C<< set_query_form ( $key => $value ) >>
+=item C<< set_query_param ( $key => $value ) >>
 
 sets the respective query form value and returns a new L<IRI> object.
 
