@@ -105,7 +105,6 @@ package IRI {
 	});
 	has 'value' => (is => 'ro', isa => Str, default => '');
 	has 'components' => (is => 'ro', writer => '_set_components');
-	has 'as_string' => (is => 'ro', isa => Str, lazy => 1, builder => '_as_string');
 	has 'abs' => (is => 'ro', lazy => 1, builder => '_abs');
 	has 'resolved_components' => (
 		is		=> 'ro',
@@ -392,7 +391,7 @@ package IRI {
 		return $value;
 	}
 
-	sub _as_string {
+	sub as_string {
 		my $self	= shift;
 		if ($self->has_base) {
 			return $self->abs;
@@ -413,7 +412,7 @@ package IRI {
 			# has authority
 			$iri .= "//";
 			if (my $u = $components->{user}) {
-				$iri	.= "${u}@";
+				$iri	.= sprintf('%s@', $u);
 			}
 			if (defined(my $h = $components->{host})) {
 				$iri	.= $h // '';
@@ -428,14 +427,66 @@ package IRI {
 		}
 		
 		if (defined(my $q = $components->{query})) {
-			$iri	.= "?$q";
+			$iri	.= '?' . $q;
 		}
 		
 		if (defined(my $f = $components->{fragment})) {
-			$iri	.= "#$f";
+			$iri	.= '#' . $f;
 		}
 		
 		return $iri;
+	}
+	
+	sub _encode {
+		my $str	= shift;
+		$str	=~ s~([%])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
+		$str	=~ s~([/:?#@]|\[|\])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
+		$str	=~ s~([$!&'()*+,;=])~'%' . sprintf('%02x', ord($1))~ge;	# sub-delims
+		return $str;
+	}
+	
+	sub _unencode {
+		my $str	= shift;
+		if (defined($str)) {
+			$str =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+		}
+		return $str;
+	}
+	
+=item C<< query_form >>
+
+Returns a HASH of key-value mappings for the unencoded, parsed query form data.
+
+=cut
+
+	sub query_form {
+		my $self	= shift;
+		my $q		= $self->query // return;
+		my @pairs	= split(/&/, $q);
+		return map { _unencode($_) } map { split(/=/, $_) } @pairs;
+	}
+
+=item C<< set_query_form ( $key => $value ) >>
+
+sets the respective query form value and returns a new L<IRI> object.
+
+=cut
+
+	sub set_query_param {
+		my $self	= shift;
+		my $q		= $self->query // return;
+		my %map		= map { _unencode($_) } map { split(/=/, $_) } split(/&/, $q);
+		while (my ($k, $v)	= splice(@_, 0, 2)) {
+			$map{$k}	= $v;
+		}
+		
+		my %c		= %{ $self->components };
+		my @pairs	= map { join('=', (_encode($_), _encode($map{$_}))) } keys %map;
+		warn Dumper(\@pairs);
+		$c{query}	= join('&', @pairs);
+		
+		my $v		= $self->_string_from_components(\%c);
+		return $self->new( value => $v );
 	}
 }
 
