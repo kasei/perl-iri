@@ -15,6 +15,20 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.006.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.005.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.006" ;
+		doap:created	"2016-07-19" ;
+	] ;
+	asc:changes [
+		asc:update		"Fix regular expression use of quantifiers (#8 from Karl Williamson)." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.005.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.004.tar.gz> ;
