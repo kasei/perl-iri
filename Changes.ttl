@@ -15,6 +15,21 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.007.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.006.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.007" ;
+		doap:created	"2017-04-03" ;
+	] ;
+	asc:changes [
+		asc:addition	"Add query_form accessor and set_query_param constructor (#4)." ;
+		asc:update		"Updated Makefile.PL for perl 5.26." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.006.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.005.tar.gz> ;
