@@ -76,8 +76,9 @@ Returns the respective component of the parsed IRI.
 
 =cut
 
-package IRI {
-	use v5.14;
+{ 
+	package IRI; 
+	use v5.10;
 	use warnings;
 	our $VERSION	= '0.008';
 	use Moo;
