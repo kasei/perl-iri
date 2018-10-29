@@ -78,7 +78,7 @@ Returns the respective component of the parsed IRI.
 
 { 
 	package IRI; 
-	use v5.10;
+	use v5.10.1;
 	use warnings;
 	our $VERSION	= '0.008';
 	use Moo;
