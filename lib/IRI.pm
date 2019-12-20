@@ -337,11 +337,13 @@ Returns the respective component of the parsed IRI.
 				}
 			} else {
 				if ($components{user} or $components{port} or defined($components{host})) {
-					foreach my $k (qw(scheme user port host path query)) {
+					foreach my $k (qw(scheme user port host query)) {
 						if (exists $components{$k}) {
 							$target{$k} = $components{$k};
 						}
 					}
+					my $path		= $components{path};
+					$target{path}	= $self->_remove_dot_segments($path);
 				} else {
 					if ($components{path} eq '') {
 						$target{path}	= $base{path};
