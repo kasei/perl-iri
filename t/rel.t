@@ -116,4 +116,26 @@ subtest 'rel: scheme,host,path,query' => sub {
 	confirm_tests($base, \@REL_TESTS);
 };
 
+subtest 'http relative IRI construction with different bases' => sub {
+	my $iri        = IRI->new(value => 'http://example.org:80/foo/bar/baz#xyz?q=ff');
+
+	my $base0    = IRI->new(value => 'http://example.org/');
+	my $base1    = IRI->new(value => 'http://example.org:80/foo');
+	my $base2    = IRI->new(value => 'http://example.org:80/foo/');
+	my $base3    = IRI->new(value => 'http://example.org:80/foo/ba');
+	my $base4    = IRI->new(value => 'http://example.org:80/foo/bar/?q=ff');
+	my $base5    = IRI->new(value => 'https://example.org:80/foo/bar/baz');
+	my $base6    = IRI->new(value => 'http://example.com:80/foo/bar/baz');
+	my $base7    = IRI->new(value => 'http://example.org:81/foo/bar/baz');
+
+	is($iri->rel($base0)->abs, '//example.org:80/foo/bar/baz#xyz?q=ff', 'different port');
+	is($iri->rel($base1)->abs, 'foo/bar/baz#xyz?q=ff', '/foo');
+	is($iri->rel($base2)->abs, 'bar/baz#xyz?q=ff', '/bar');
+	is($iri->rel($base3)->abs, 'bar/baz#xyz?q=ff', '/foo/ba (shared prefix, but ending mid-path)');
+	is($iri->rel($base4)->abs, 'baz#xyz?q=ff', 'extra query');
+	is($iri->rel($base5)->abs, 'http://example.org:80/foo/bar/baz#xyz?q=ff', 'different scheme');
+	is($iri->rel($base6)->abs, '//example.org:80/foo/bar/baz#xyz?q=ff', 'different host');
+	is($iri->rel($base7)->abs, '//example.org:80/foo/bar/baz#xyz?q=ff', 'different port');
+};
+
 done_testing();
