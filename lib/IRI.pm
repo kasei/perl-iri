@@ -112,6 +112,7 @@ Returns the respective component of the parsed IRI.
 		isa		=> HashRef,
 		lazy	=> 1,
 		builder	=> '_resolved_components',
+		predicate => 1,
 		handles_via	=> 'Hash',
 		handles	=> {
 			scheme		=>  [ accessor => 'scheme' ],
@@ -135,10 +136,15 @@ Returns the respective component of the parsed IRI.
 	
 	sub BUILD {
 		my $self	= shift;
-		unless ($self->lazy) {
-			my $comp	= $self->_parse_components($self->value);
+		if ($self->has_resolved_components) {
+		  $self->_set_components($self->resolved_components);
+		  $self->_initialized(1);
+		} else {
+		  unless ($self->lazy) {
+			 my $comp	= $self->_parse_components($self->value);
+		  }
 		}
-	}
+	 }
 	
 	before [qw(components as_string abs resolved_components scheme host port user path fragment query)] => sub {
 		my $self	= shift;
@@ -394,7 +400,7 @@ Returns the respective component of the parsed IRI.
 
 	sub as_string {
 		my $self	= shift;
-		if ($self->has_base) {
+		if ($self->has_base || $self->has_resolved_components) {
 			return $self->abs;
 		} else {
 			return $self->value;
