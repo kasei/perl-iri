@@ -114,6 +114,7 @@ Returns the respective component of the parsed IRI.
 		builder	=> '_resolved_components',
 		handles_via	=> 'Hash',
 		handles	=> {
+			authority	=>  [ accessor => 'authority' ],
 			scheme		=>  [ accessor => 'scheme' ],
 			host		=>  [ accessor => 'host' ],
 			port		=>  [ accessor => 'port' ],
@@ -224,7 +225,7 @@ Returns the respective component of the parsed IRI.
 	my $iregname		= qr<(${iunreserved}|${pctencoded}|${subdelims})*>o;
 	my $ihost			= qr<(?<host>${IPliteral}|${IPv4address}|${iregname})>o;
 	my $iuserinfo		= qr<(?<user>(${iunreserved}|${pctencoded}|${subdelims}|:)*)>o;
-	my $iauthority		= qr<(${iuserinfo}@)?${ihost}(:${port})?>o;
+	my $iauthority		= qr<(?<authority>(${iuserinfo}@)?${ihost}(:${port})?)>o;
 	my $irelativepart	= qr<
 							(//${iauthority}${ipathabempty})
 						|	${ipathabsolute}
