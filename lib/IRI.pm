@@ -395,6 +395,109 @@ Returns the respective component of the parsed IRI.
 		return $value;
 	}
 
+=item C<< rel ( $base ) >>
+
+Returns a new relative IRI object which, when resolved against the C<< $base >>
+IRI, is equal to this IRI.
+
+=cut
+
+	sub rel {
+		# based on code in URI <https://metacpan.org/source/OALDERS/URI-1.76/lib/URI/_generic.pm#L191>
+		my $self	= shift;
+		my $base	= shift;
+		my $rel		= IRI->new(value => $self->abs);
+		
+		if (($base->scheme // '') ne ($rel->scheme // '')) {
+			return IRI->new(value => $rel->abs);
+		}
+
+		my $scheme = $rel->scheme;
+		my $auth   = $rel->authority;
+		my $path   = $rel->path;
+		
+		if (!defined($scheme) and !defined($auth)) {
+			return $rel;
+		}
+
+		my $bscheme = $base->scheme;
+		my $bauth   = $base->authority;
+		my $bpath   = $base->path;
+
+		for ($bscheme, $bauth, $auth) {
+			$_ = '' unless defined($_);
+		}
+		
+		if ($scheme eq $bscheme) {
+			$rel->scheme(undef);
+		}
+		
+		unless ($scheme eq $bscheme and $auth eq $bauth) {
+			return IRI->new(value => $rel->_abs);
+		}
+
+		for ($path, $bpath) {
+			$_ = "/$_" unless m{^/};
+		}
+
+		# Make it relative by eliminating:
+		# the scheme,
+		$rel->scheme(undef);
+
+		# ... and authority
+		$rel->host(undef);
+		$rel->port(undef);
+		$rel->user(undef);
+		
+		
+		my @rparts	= split('/', $path);
+		my @bparts	= split('/', $bpath);
+		shift(@rparts);
+		shift(@bparts);
+		if (scalar(@rparts) and (scalar(@bparts) and $rparts[0] ne $bparts[0])) {
+			# use an absolute path, because $rel differs from $base at the very beginning
+		} else {
+			# This loop is based on code from Nicolai Langfeldt <janl@ifi.uio.no>.
+			# First we calculate common initial path components length ($li).
+			my $li = 1;
+			while (1) {
+				my $i = index($path, '/', $li);
+				last if $i < 0 ||
+					$i != index($bpath, '/', $li) ||
+					substr($path,$li,$i-$li) ne substr($bpath,$li,$i-$li);
+				$li=$i+1;
+			}
+		
+			# then we nuke it from both paths
+			substr($path, 0,$li) = '';
+			substr($bpath,0,$li) = '';
+
+
+			if ($path eq $bpath) {
+				$rel->path('');
+				if (defined($rel->query) and defined($base->query)) {
+					if ($rel->query eq $base->query) {
+						$rel->query(undef);
+					} else {
+						#
+					}
+				} elsif (defined($rel->query)) {
+					#
+				} elsif (defined($base->query)) {
+					$rel->path($path);
+				} else {
+					#
+				}
+			} else {
+				# Add one "../" for each path component left in the base path
+				$path = ('../' x $bpath =~ tr|/|/|) . $path;
+				$path = "./" if $path eq '';
+				$rel->path($path);
+			}
+		}
+		return IRI->new(value => $rel->_abs);
+	}
+
 	sub as_string {
 		my $self	= shift;
 		if ($self->has_base) {
