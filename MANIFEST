@@ -15,8 +15,10 @@ MANIFEST			This list of files
 META.yml
 meta/changes.ttl
 t/00-simple.t
+t/base_resolution.t
 t/bugs.t
 t/coercion.t
+t/rel.t
 xt/pod-coverage.t
 xt/pod.t
 README
