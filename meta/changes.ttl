@@ -15,6 +15,20 @@
 	.
 
 
+<http://kasei.us/code/files/IRI-0.011.tar.gz>
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    <http://kasei.us/code/files/IRI-0.010.tar.gz> ;
+	
+	doap:Version [
+		doap:revision	"0.011" ;
+		doap:created	"2020-02-20" ;
+	] ;
+	asc:changes [
+		asc:update		"Add IRI->rel method." ;
+	] ;
+	.
+
+
 <http://kasei.us/code/files/IRI-0.010.tar.gz>
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    <http://kasei.us/code/files/IRI-0.009.tar.gz> ;
