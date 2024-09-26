@@ -248,7 +248,7 @@ Returns the respective component of the parsed IRI.
 		my $v		= shift;
 		my $c;
 		
-		if ($v =~ /^${IRIreference}$/o) {
+		if ($v =~ /\A(${IRIreference})\Z/mso and length($1) == length($v)) {
 			%$c = %+;
 		} else {
 			use Data::Dumper;
