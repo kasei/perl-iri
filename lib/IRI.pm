@@ -566,6 +566,17 @@ IRI, is equal to this IRI.
 		return $str;
 	}
 	
+=item C<< is_absolute >>
+
+Returns true if the IRI is absolute, false otherwise.
+
+=cut
+
+	sub is_absolute {
+		my $self	= shift;
+		return exists $self->components->{'scheme'};
+	}
+	
 =item C<< query_form >>
 
 Returns a HASH of key-value mappings for the unencoded, parsed query form data.
