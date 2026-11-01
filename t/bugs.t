@@ -201,12 +201,34 @@ subtest 'set_query_param encodes characters not allowed in an IRI' => sub {
 
 subtest 'set_query_param percent-encodes non-ASCII characters as UTF-8 bytes' => sub {
 	# These codepoints are above U+007F but are not ucschar/iprivate, so they
-	# must be percent-encoded. Each %XX must be one byte of the UTF-8 encoding,
-	# not the codepoint number (which would produce e.g. "%ffff" for U+FFFF).
+	# must be percent-encoded. Each %XX must be one code unit of the UTF-8 encoding,
+	# not the codepoint number (e.g. "%ffff" for U+FFFF).
 	my $i	= IRI->new(value => 'http://example.org/');
 	is($i->set_query_param(k => "\x{85}")->value, 'http://example.org/?k=%c2%85', 'U+0085 (C1 control)');
 	is($i->set_query_param(k => "\x{FFFF}")->value, 'http://example.org/?k=%ef%bf%bf', 'U+FFFF (noncharacter)');
 	is($i->set_query_param(k => "\x{FDD0}")->value, 'http://example.org/?k=%ef%b7%90', 'U+FDD0 (noncharacter)');
+};
+
+subtest 'query_form does not UTF-8 decode percent-encoded data' => sub {
+	# Percent-encoded data in an IRI is not necessarily UTF-8, so _unencode must
+	# return the raw octets rather than decoding them.
+	my $i	= IRI->new(value => 'http://example.org/?a=%ff%fe%00&b=%c3%a5&c=%e5');
+	my %q	= $i->query_form;
+	is($q{a}, "\xff\xfe\x00", 'invalid UTF-8 octets are returned unchanged');
+	is($q{b}, "\xc3\xa5", 'valid UTF-8 sequence is returned as octets, not decoded to U+00E5');
+	is($q{c}, "\xe5", 'Latin-1 octet is returned unchanged');
+	ok(!utf8::is_utf8($q{$_}) || $q{$_} !~ /[^\x00-\xff]/, "value for $_ contains only octets") for qw(a b c);
+};
+
+subtest 'set_query_param preserves existing non-UTF-8 percent-encoded data' => sub {
+	# Adding a parameter must not change the meaning of existing parameters.
+	# Turning %ff into a literal U+00FF would make it the UTF-8 bytes C3 BF.
+	my $i	= IRI->new(value => 'http://example.org/?a=%ff%fe%00&b=%c3%a5&c=%e5');
+	my $j	= $i->set_query_param(d => 1);
+	is($j->value, 'http://example.org/?a=%ff%fe%00&b=%c3%a5&c=%e5&d=1');
+	my %q	= $j->query_form;
+	is($q{a}, "\xff\xfe\x00", 'existing octets survive the round trip');
+	is($q{c}, "\xe5", 'existing Latin-1 octet survives the round trip');
 };
 
 done_testing();

@@ -591,7 +591,7 @@ IRI, is equal to this IRI.
 		return join('', map { sprintf('%%%02x', ord($_)) } split(//, $c));
 	}
 	
-	sub _unencode {
+	sub _decode {
 		my $str	= shift;
 		if (defined($str)) {
 			$str =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
@@ -614,13 +614,17 @@ Returns true if the IRI is absolute, false otherwise.
 
 Returns a HASH of key-value mappings for the unencoded, parsed query form data.
 
+NOTE: UTF-8 encoding performed automatically in C< set_query_param > is not
+transparently decoded in here. If non-ASCII string data is needed, it must be
+decoded by the caller.
+
 =cut
 
 	sub query_form {
 		my $self	= shift;
 		my $q		= $self->query // return;
 		my @pairs	= split(/&/, $q);
-		return map { _unencode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } @pairs;
+		return map { _decode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } @pairs;
 	}
 
 	sub _encode_pair {
@@ -637,20 +641,36 @@ Returns a HASH of key-value mappings for the unencoded, parsed query form data.
 	
 =item C<< set_query_param ( $key => $value ) >>
 
-sets the respective query form value and returns a new L<IRI> object.
+Sets the respective query form value and returns a new L<IRI> object.
+
+Values are percent-encoded to ensure the resulting IRI has a valid query component.
+The key and value strings are UTF-8 encoded before percent-encoding.
+
+NOTE: UTF-8 encoding performed here is not transparently decoded in C<query_form>.
+This ensures that non-string data (or string data that does not use a valid UTF-8
+encoding) does not result in corrupt data being returned. If non-ASCII data
+is needed from C< query_form >, it must be decoded by the caller.
 
 =cut
 
 	sub set_query_param {
 		my $self	= shift;
 		my $q		= $self->query // '';
-		my %map		= map { _unencode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } split(/&/, $q);
-		while (my ($k, $v)	= splice(@_, 0, 2)) {
-			$map{$k}	= $v;
+
+		# Map each (decoded) key to its encoded "key=value" text. Existing pairs
+		# keep their original encoded text: decoding and re-encoding them would
+		# change their meaning, since percent-encoded data is not necessarily UTF-8.
+		my %pairs;
+		foreach my $pair (split(/&/, $q)) {
+			my ($k)			= split(/=/, $pair, 2);
+			$pairs{ _decode($k // '') }	= $pair;
 		}
-		
+		while (my ($k, $v)	= splice(@_, 0, 2)) {
+			$pairs{$k}	= $self->_encode_pair($k, $v);
+		}
+
 		my %c		= %{ $self->components };
-		my @pairs	= map { $self->_encode_pair($_, $map{$_}) } sort keys %map;
+		my @pairs	= map { $pairs{$_} } sort keys %pairs;
 		$c{query}	= join('&', @pairs);
 		
 		my $v		= $self->_string_from_components(\%c);
