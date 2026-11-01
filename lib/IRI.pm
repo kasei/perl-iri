@@ -612,11 +612,17 @@ Returns true if the IRI is absolute, false otherwise.
 	
 =item C<< query_form >>
 
-Returns a HASH of key-value mappings for the unencoded, parsed query form data.
+Returns the parsed query form data as a list of key-value pairs, suitable for
+assigning to a hash. Percent-encoding is removed from each key and value, and a
+key with no C<< = >> gets an empty-string value.
 
-NOTE: UTF-8 encoding performed automatically in C< set_query_param > is not
-transparently decoded in here. If non-ASCII string data is needed, it must be
-decoded by the caller.
+NOTE: Percent-encoded octets are returned as octets, and are not decoded as
+UTF-8, because percent-encoded data in an IRI is not necessarily UTF-8. For
+example, C<< %c3%a5 >> is returned as the two octets C<< "\xc3\xa5" >>, not as
+C<< "\x{e5}" >>. Non-ASCII characters that appear in the IRI without
+percent-encoding are returned as characters. If character data is needed from
+percent-encoded octets, the caller must decode it (e.g. with
+L<Encode/decode_utf8>).
 
 =cut
 
@@ -624,7 +630,7 @@ decoded by the caller.
 		my $self	= shift;
 		my $q		= $self->query // return;
 		my @pairs	= split(/&/, $q);
-		return map { _decode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } @pairs;
+		return map { _decode($_) } map { my @a = (undef); unshift(@a, split(/=/, $_, 2)); @a[0,1] } @pairs;
 	}
 
 	sub _encode_pair {
@@ -641,15 +647,24 @@ decoded by the caller.
 	
 =item C<< set_query_param ( $key => $value ) >>
 
-Sets the respective query form value and returns a new L<IRI> object.
+Sets the query form value for each given key, replacing any existing value for
+that key, and returns a new L<IRI> object. Parameters in the resulting query are
+sorted by key.
 
-Values are percent-encoded to ensure the resulting IRI has a valid query component.
-The key and value strings are UTF-8 encoded before percent-encoding.
+Keys and values are encoded so the resulting IRI has a valid query component.
+Characters that are allowed unencoded in an IRI query (ASCII letters, digits,
+C<< - . _ ~ >>, and the non-ASCII characters permitted by RFC 3987) are kept as
+they are. All other characters, including C<< % >>, delimiters such as
+C<< & = / ? # >>, spaces, and control characters, are UTF-8 encoded and then
+percent-encoded. For example, C<< "x y" >> becomes C<< x%20y >>, while
+C<< "\x{e5}" >> stays as a literal C<< å >>.
 
-NOTE: UTF-8 encoding performed here is not transparently decoded in C<query_form>.
-This ensures that non-string data (or string data that does not use a valid UTF-8
-encoding) does not result in corrupt data being returned. If non-ASCII data
-is needed from C< query_form >, it must be decoded by the caller.
+Existing parameters whose keys are not being set are kept exactly as they
+appear in the original query, including their percent-encoding.
+
+NOTE: C<< query_form >> does not decode UTF-8, so a value containing non-ASCII
+characters that had to be percent-encoded is returned by C<< query_form >> as
+UTF-8 octets, which the caller must decode.
 
 =cut
 
