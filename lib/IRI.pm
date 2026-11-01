@@ -156,7 +156,7 @@ Returns the respective component of the parsed IRI.
 	};
 
 	# These regexes are (mostly) from the syntax grammar in RFC 3987
-	my $HEXDIG			= qr<[0-9A-F]>o;
+	my $HEXDIG			= qr<[0-9A-Fa-f]>o;
 	my $ALPHA			= qr<[A-Za-z]>o;
 	my $subdelims		= qr<[!\$&'()*+,;=]>xo;
 	my $gendelims		= qr<[":/?#@] | \[ | \]>xo;
@@ -198,7 +198,7 @@ Returns the respective component of the parsed IRI.
 							\]
 						>xo;
 	my $port			= qr<(?<port>[0-9]*)>o;
-	my $scheme			= qr<(?<scheme>${ALPHA} ( ${ALPHA} | [0-9] | [+] | [-] | [.] )*)>xo;
+	my $r_scheme		= qr<(?<scheme>${ALPHA} ( ${ALPHA} | [0-9] | [+] | [-] | [.] )*)>xo;
 	my $iprivate		= qr<[\x{E000}-\x{F8FF}] | [\x{F0000}-\x{FFFFD}] | [\x{100000}-\x{10FFFD}]>xo;
 	my $ucschar			= qr<
 							[\x{a0}-\x{d7ff}] | [\x{f900}-\x{fdcf}] | [\x{fdf0}-\x{ffef}]
@@ -240,8 +240,8 @@ Returns the respective component of the parsed IRI.
 						>xo;
 	my $irelativeref	= qr<${irelativepart}([?]${iquery})?(#${ifragment})?>o;
 	my $ihierpart		= qr<(//${iauthority}${ipathabempty})|(${ipathabsolute})|(${ipathrootless})|(${ipathempty})>o;
-	my $absoluteIRI		= qr<${scheme}:${ihierpart}([?]${iquery})?>o;
-	my $IRI				= qr<${scheme}:${ihierpart}([?]${iquery})?(#${ifragment})?>o;
+	my $absoluteIRI		= qr<${r_scheme}:${ihierpart}([?]${iquery})?>o;
+	my $IRI				= qr<${r_scheme}:${ihierpart}([?]${iquery})?(#${ifragment})?>o;
 	my $IRIreference	= qr<${IRI}|${irelativeref}>o;
 	sub _parse_components {
 		my $self	= shift;
@@ -343,21 +343,22 @@ Returns the respective component of the parsed IRI.
 					}
 				}
 			} else {
-				if ($components{user} or $components{port} or defined($components{host})) {
+				if (defined($components{user}) or defined($components{port}) or defined($components{host})) {
 					foreach my $k (qw(scheme user port host query)) {
 						if (exists $components{$k}) {
 							$target{$k} = $components{$k};
 						}
 					}
+					$target{authority} = $components{authority};
 					my $path		= $components{path};
 					$target{path}	= $self->_remove_dot_segments($path);
 				} else {
 					if ($components{path} eq '') {
 						$target{path}	= $base{path};
-						if ($components{query}) {
+						if (defined $components{query}) {
 							$target{query}	= $components{query};
 						} else {
-							if ($base{query}) {
+							if (defined $base{query}) {
 								$target{query}	= $base{query};
 							}
 						}
@@ -373,12 +374,13 @@ Returns the respective component of the parsed IRI.
 							$target{query}	= $components{query};
 						}
 					}
-					if ($base{user} or $base{port} or defined($base{host})) {
+					if (defined($base{user}) or defined($base{port}) or defined($base{host})) {
 						foreach my $k (qw(user port host)) {
 							if (exists $base{$k}) {
 								$target{$k} = $base{$k};
 							}
 						}
+						$target{authority} = $base{authority};
 					}
 				}
 				if (defined($base{scheme})) {
@@ -412,6 +414,9 @@ IRI, is equal to this IRI.
 		# based on code in URI <https://metacpan.org/source/OALDERS/URI-1.76/lib/URI/_generic.pm#L191>
 		my $self	= shift;
 		my $base	= shift;
+		unless (blessed($base)) {
+			$base	= IRI->new( value => $base );
+		}
 		my $rel		= IRI->new(value => $self->abs);
 		
 		if (($base->scheme // '') ne ($rel->scheme // '')) {
@@ -434,11 +439,12 @@ IRI, is equal to this IRI.
 			$_ = '' unless defined($_);
 		}
 		
-		if ($scheme eq $bscheme) {
+		my $schemes_eq	= ((not(defined($scheme)) and not(defined($bscheme))) or (defined($scheme) and defined($bscheme) and $scheme eq $bscheme));
+		if ($schemes_eq) {
 			$rel->scheme(undef);
 		}
 		
-		unless ($scheme eq $bscheme and $auth eq $bauth) {
+		unless ($schemes_eq and $auth eq $bauth) {
 			return IRI->new(value => $rel->_abs);
 		}
 
@@ -490,7 +496,17 @@ IRI, is equal to this IRI.
 				} elsif (defined($rel->query)) {
 					#
 				} elsif (defined($base->query)) {
-					$rel->path($path);
+					# the base has a query, but the rel doesn't have one.
+					# we need to set a path so that the relative IRI does
+					# not inherit the query of the base
+					my @components	= split('/', $path);
+					my $last		= pop(@components);
+					if ($last) {
+						$rel->path($last);
+					} else {
+						# the last path component is empty (e.g. ends with `/`), so use ./ as the relative path
+						$rel->path("./");
+					}
 				} else {
 					#
 				}
@@ -498,9 +514,18 @@ IRI, is equal to this IRI.
 				# Add one "../" for each path component left in the base path
 				$path = ('../' x $bpath =~ tr|/|/|) . $path;
 				$path = "./" if $path eq '';
+				
+				if ($path =~ qr<^ ${r_scheme} : >ox) {
+					$path	= "./$path";
+				} elsif ($path =~ m<^//>) {
+					$path	= "./$path";
+				}
+				
 				$rel->path($path);
 			}
 		}
+		
+		my $abs	= $rel->_abs;
 		return IRI->new(value => $rel->_abs);
 	}
 
@@ -521,16 +546,16 @@ IRI, is equal to this IRI.
 			$iri	.= "${s}:";
 		}
 		
-		if ($components->{user} or $components->{port} or defined($components->{host})) {
+		if (defined($components->{user}) or defined($components->{port}) or defined($components->{host})) {
 			# has authority
 			$iri .= "//";
-			if (my $u = $components->{user}) {
+			if (defined(my $u = $components->{user})) {
 				$iri	.= sprintf('%s@', $u);
 			}
 			if (defined(my $h = $components->{host})) {
 				$iri	.= $h // '';
 			}
-			if (my $p = $components->{port}) {
+			if (defined(my $p = $components->{port})) {
 				$iri	.= ":$p";
 			}
 		}
@@ -554,7 +579,7 @@ IRI, is equal to this IRI.
 		my $str	= shift;
 		$str	=~ s~([%])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
 		$str	=~ s~([/:?#@]|\[|\])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
-		$str	=~ s~([$!&'()*+,;=])~'%' . sprintf('%02x', ord($1))~ge;	# sub-delims
+		$str	=~ s~([\$!&'()*+,;=])~'%' . sprintf('%02x', ord($1))~ge;	# sub-delims
 		return $str;
 	}
 	
@@ -587,9 +612,21 @@ Returns a HASH of key-value mappings for the unencoded, parsed query form data.
 		my $self	= shift;
 		my $q		= $self->query // return;
 		my @pairs	= split(/&/, $q);
-		return map { _unencode($_) } map { split(/=/, $_) } @pairs;
+		return map { _unencode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } @pairs;
 	}
 
+	sub _encode_pair {
+		my $self	= shift;
+		my $key		= shift;
+		my $value	= shift;
+		my $ekey	= _encode($key);
+		if (defined($value)) {
+			return $ekey . '=' . _encode($value);
+		} else {
+			return $ekey;
+		}
+	}
+	
 =item C<< set_query_param ( $key => $value ) >>
 
 sets the respective query form value and returns a new L<IRI> object.
@@ -598,19 +635,22 @@ sets the respective query form value and returns a new L<IRI> object.
 
 	sub set_query_param {
 		my $self	= shift;
-		my $q		= $self->query // return;
-		my %map		= map { _unencode($_) } map { split(/=/, $_) } split(/&/, $q);
+		my $q		= $self->query // '';
+		my %map		= map { _unencode($_) } map { my @a = (''); unshift(@a, split(/=/, $_, 2)); @a[0,1] } split(/&/, $q);
 		while (my ($k, $v)	= splice(@_, 0, 2)) {
 			$map{$k}	= $v;
 		}
 		
 		my %c		= %{ $self->components };
-		my @pairs	= map { join('=', (_encode($_), _encode($map{$_}))) } keys %map;
-		warn Dumper(\@pairs);
+		my @pairs	= map { $self->_encode_pair($_, $map{$_}) } sort keys %map;
 		$c{query}	= join('&', @pairs);
 		
 		my $v		= $self->_string_from_components(\%c);
-		return $self->new( value => $v );
+		my @args;
+		if (my $b = $self->base) {
+			push(@args, base => $b);
+		}
+		return $self->new( value => $v, @args );
 	}
 }
 

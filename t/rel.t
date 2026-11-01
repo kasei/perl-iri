@@ -35,7 +35,8 @@ sub run_tests {
 		my $i	= IRI->new(value => $url);
 		my $r	= $i->rel($base);
 # 		warn "Turning " . $i->abs . " into a relative IRI using base $b ===> " . $r->abs;
-		is($r->as_string, $expect, "$url [$b]");
+		my $rs	= $r->as_string;
+		is($r->as_string, $expect, "$url [$b] ('$rs' == '$expect')");
 	}
 }
 
