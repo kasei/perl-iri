@@ -34,15 +34,30 @@ my:project
 	doap:license				<http://dev.perl.org/licenses/> ;
 	doap:release				my:v_0-01 , my:v_0-02 , my:v_0-03 , my:v_0-04 , my:v_0-05 ,
 								my:v_0-06 , my:v_0-07 , my:v_0-08 , my:v_0-09 , my:v_0-10 ,
-								my:v_0-11 , my:v_0-12 , my:v_0-13 , my:v_0-14 , my:v_0-15 ;
+								my:v_0-11 , my:v_0-12 , my:v_0-13 , my:v_0-14 , my:v_0-15 ,
+								my:v_0-16 ;
 	.
+
+my:v_0-16
+	a					doap:Version ;
+	dcterms:isVersionOf my:project ;
+	dcterms:replaces    my:v_0-015 ;
+	doap:revision	"0.016" ;
+	dc:issued	"2026-11-01"^^xsd:date ;
+	dcs:changeset [
+		dcs:item
+			[ a dcs:Update ; rdfs:label "Release to fix broken version metadata in 0.015 (#22)." ] ,
+			[ a dcs:Update ; rdfs:label "Modernize DOAP data in meta/changes.ttl." ]
+	] ;
+	.
+
 
 my:v_0-15
 	a					doap:Version ;
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-14 ;
 	doap:revision	"0.015" ;
-	dc:issued	"2026-10-14" ;
+	dc:issued	"2026-10-14"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "Add is_absolute method." ]
@@ -55,7 +70,7 @@ my:v_0-14
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-13 ;
 	doap:revision	"0.014" ;
-	dc:issued	"2026-05-04" ;
+	dc:issued	"2026-05-04"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Update Makefile.PL to use GNU tar on MacOS when creating new releases." ],
@@ -69,7 +84,7 @@ my:v_0-13
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-12 ;
 	doap:revision	"0.013" ;
-	dc:issued	"2024-09-29" ;
+	dc:issued	"2024-09-29"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "New version to address bad data in META.yml in 0.12 release." ]
@@ -82,7 +97,7 @@ my:v_0-12
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-11 ;
 	doap:revision	"0.012" ;
-	dc:issued	"2024-09-28" ;
+	dc:issued	"2024-09-28"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Fix bug that inadvertently allowed trailing newlines at the end of an IRI." ]
@@ -95,7 +110,7 @@ my:v_0-11
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-10 ;
 	doap:revision	"0.011" ;
-	dc:issued	"2020-02-20" ;
+	dc:issued	"2020-02-20"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Add IRI->rel method." ]
@@ -108,7 +123,7 @@ my:v_0-10
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-09 ;
 	doap:revision	"0.010" ;
-	dc:issued	"2019-12-26" ;
+	dc:issued	"2019-12-26"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Fix component resolution to remove dots when base resolution occurs without a scheme but with a user/port/host." ]
@@ -121,7 +136,7 @@ my:v_0-09
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-08 ;
 	doap:revision	"0.009" ;
-	dc:issued	"2018-10-30" ;
+	dc:issued	"2018-10-30"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Reduce Minimum Perl Version to 5.10 (#12 from @tehmoth)." ]
@@ -134,7 +149,7 @@ my:v_0-08
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-07 ;
 	doap:revision	"0.008" ;
-	dc:issued	"2017-08-06" ;
+	dc:issued	"2017-08-06"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Fix typo in regex rule causing problems parsing codepoints beyond BMP (#11)." ]
@@ -147,7 +162,7 @@ my:v_0-07
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-06 ;
 	doap:revision	"0.007" ;
-	dc:issued	"2017-04-03" ;
+	dc:issued	"2017-04-03"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "Add query_form accessor and set_query_param constructor (#4)." ],
@@ -161,7 +176,7 @@ my:v_0-06
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-05 ;
 	doap:revision	"0.006" ;
-	dc:issued	"2016-07-19" ;
+	dc:issued	"2016-07-19"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Fix regular expression use of quantifiers (#8 from Karl Williamson)." ]
@@ -174,7 +189,7 @@ my:v_0-05
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-04 ;
 	doap:revision	"0.005" ;
-	dc:issued	"2016-04-04" ;
+	dc:issued	"2016-04-04"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "Add ability to lazily parse IRI components." ],
@@ -192,7 +207,7 @@ my:v_0-04
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-03 ;
 	doap:revision	"0.004" ;
-	dc:issued	"2014-09-25" ;
+	dc:issued	"2014-09-25"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Update ; rdfs:label "Moved modules from Moose to Moo." ],
@@ -206,7 +221,7 @@ my:v_0-03
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-02 ;
 	doap:revision	"0.003" ;
-	dc:issued	"2014-08-11" ;
+	dc:issued	"2014-08-11"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "Added coercion from Str to IRI." ]
@@ -219,7 +234,7 @@ my:v_0-02
 	dcterms:isVersionOf my:project ;
 	dcterms:replaces    my:v_0-01 ;
 	doap:revision	"0.002" ;
-	dc:issued	"2014-08-09" ;
+	dc:issued	"2014-08-09"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "Added as_string method." ]
@@ -231,7 +246,7 @@ my:v_0-01
 	a					doap:Version ;
 	dcterms:isVersionOf my:project ;
 	doap:revision	"0.001" ;
-	dc:issued	"2014-08-02" ;
+	dc:issued	"2014-08-02"^^xsd:date ;
 	dcs:changeset [
 		dcs:item
 			[ a dcs:Addition ; rdfs:label "First release." ]
