@@ -107,14 +107,14 @@ subtest 'set_query_param preserves the base IRI' => sub {
 subtest 'query_form with "=" in values and keys without values' => sub {
 	my $i	= IRI->new(value => 'http://example.org/?a=b=c&d&e=f');
 	my @q	= $i->query_form;
-	is_deeply(\@q, ['a', 'b=c', 'd', '', 'e', 'f']);
+	is_deeply(\@q, ['a', 'b=c', 'd', undef, 'e', 'f']);
 };
 
 subtest 'set_query_param with "=" in values and keys without values' => sub {
 	my $i	= IRI->new(value => 'http://example.org/?a=b%3Dc&d&e=f');
 	my $j	= $i->set_query_param(g => 'h');
 	my %q	= $j->query_form;
-	is_deeply(\%q, { a => 'b=c', d => '', e => 'f', g => 'h' });
+	is_deeply(\%q, { a => 'b=c', d => undef, e => 'f', g => 'h' });
 };
 
 subtest 'false-but-defined components are serialized' => sub {

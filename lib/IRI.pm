@@ -614,7 +614,7 @@ Returns true if the IRI is absolute, false otherwise.
 
 Returns the parsed query form data as a list of key-value pairs, suitable for
 assigning to a hash. Percent-encoding is removed from each key and value, and a
-key with no C<< = >> gets an empty-string value.
+key with no C<< = >> gets an undefined value.
 
 NOTE: Percent-encoded octets are returned as octets, and are not decoded as
 UTF-8, because percent-encoded data in an IRI is not necessarily UTF-8. For
