@@ -179,4 +179,34 @@ subtest 'rel() with a shared prefix, base with a query, rel with a fragment' => 
 	is(_resolve_against_base($rel, $base), 'http://ex/x/y#frag', 'resolves back to the original IRI');
 };
 
+subtest 'base coercion of unsupported objects gives a useful error' => sub {
+	eval { IRI->new(value => 'x', base => bless({}, 'Some::Other::Class'))->abs };
+	my $err	= $@;
+	ok($err, 'dies');
+	unlike($err, qr/Value "" did not pass type constraint/, 'error is not an empty-string type failure');
+	like($err, qr/Some::Other::Class/, 'error names the offending class');
+};
+
+subtest 'set_query_param encodes characters not allowed in an IRI' => sub {
+	my $i	= IRI->new(value => 'http://example.org/?a=1');
+	my $j	= eval { $i->set_query_param(b => 'x y') };
+	is($@, '', 'value with a space does not die');
+	ok($j, 'returns a new object');
+	if ($j) {
+		my %q	= $j->query_form;
+		is($q{b}, 'x y', 'value round-trips through query_form');
+		is($q{a}, '1', 'existing value preserved');
+	}
+};
+
+subtest 'set_query_param percent-encodes non-ASCII characters as UTF-8 bytes' => sub {
+	# These codepoints are above U+007F but are not ucschar/iprivate, so they
+	# must be percent-encoded. Each %XX must be one byte of the UTF-8 encoding,
+	# not the codepoint number (which would produce e.g. "%ffff" for U+FFFF).
+	my $i	= IRI->new(value => 'http://example.org/');
+	is($i->set_query_param(k => "\x{85}")->value, 'http://example.org/?k=%c2%85', 'U+0085 (C1 control)');
+	is($i->set_query_param(k => "\x{FFFF}")->value, 'http://example.org/?k=%ef%bf%bf', 'U+FFFF (noncharacter)');
+	is($i->set_query_param(k => "\x{FDD0}")->value, 'http://example.org/?k=%ef%b7%90', 'U+FDD0 (noncharacter)');
+};
+
 done_testing();

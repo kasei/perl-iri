@@ -579,10 +579,16 @@ IRI, is equal to this IRI.
 	
 	sub _encode {
 		my $str	= shift;
-		$str	=~ s~([%])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
-		$str	=~ s~([/:?#@]|\[|\])~'%' . sprintf('%02x', ord($1))~ge;	# gen-delims
-		$str	=~ s~([\$!&'()*+,;=])~'%' . sprintf('%02x', ord($1))~ge;	# sub-delims
+		# Percent-encode everything except iunreserved and iprivate characters
+		# (this covers %, gen-delims, sub-delims, spaces, and other disallowed characters)
+		$str	=~ s~((?!${iunreserved}|${iprivate}).)~_pct_encode_char($1)~gse;
 		return $str;
+	}
+	
+	sub _pct_encode_char {
+		my $c	= shift;
+		utf8::encode($c);
+		return join('', map { sprintf('%%%02x', ord($_)) } split(//, $c));
 	}
 	
 	sub _unencode {
