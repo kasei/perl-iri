@@ -99,6 +99,8 @@ Returns the respective component of the parsed IRI.
 				return $base;
 			} elsif ($base->isa('URI')) {
 				return IRI->new( value => $base->as_string );
+			} else {
+				die "Cannot coerce object of class " . ref($base) . " to an IRI base\n";
 			}
 		} else {
 			return IRI->new($base);
